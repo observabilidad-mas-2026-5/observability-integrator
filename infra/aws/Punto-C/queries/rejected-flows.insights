@@ -1,0 +1,4 @@
+fields @timestamp, @message
+| filter @message like /REJECT/
+| sort @timestamp desc
+| limit 100
