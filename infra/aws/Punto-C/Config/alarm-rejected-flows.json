@@ -1,1 +1,16 @@
-
+{
+  "AlarmName": "module-c-vpc-rejected-flows-high",
+  "AlarmDescription": "Alerta inicial por volumen de registros REJECT; no confirma actividad maliciosa.",
+  "Namespace": "ObservabilityIntegrator/Security",
+  "MetricName": "RejectedFlowRecords",
+  "Statistic": "Sum",
+  "Period": 300,
+  "EvaluationPeriods": 1,
+  "DatapointsToAlarm": 1,
+  "Threshold": 50,
+  "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+  "TreatMissingData": "notBreaching",
+  "AlarmActions": [
+    "arn:aws:sns:us-east-2:467866783326:observability-module-b-aiops-alerts"
+  ]
+}
