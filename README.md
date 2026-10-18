@@ -70,6 +70,14 @@ El validador local comprueba CRUD, persistencia tras reiniciar data-service, una
 
 data-service reutiliza la instrumentación FastAPI/HTTPX/SQLAlchemy y añade spans `credit.persist` y `credit.status_update`. Los spans SQL conservan atributos de sistema, operación y base de datos; el exportador elimina consultas, parámetros, usuario, cadenas de conexión y detalles de excepciones. No registrar cuerpos HTTP ni datos personales en logs.
 
+## Implementación del Módulo B: alertamiento y AIOps en AWS
+
+Implementamos el Módulo B sobre AWS CloudWatch para complementar la observabilidad del integrador con mecanismos de detección y notificación de eventos relevantes. Configuramos una alarma de latencia p99 para supervisar el cumplimiento del umbral de respuesta, una alarma de detección de anomalías sobre eventos de error y una alarma compuesta que relaciona ambas condiciones para reducir notificaciones aisladas. Integramos Amazon SNS para la entrega de notificaciones y AWS EventBridge con AWS Lambda para procesar los cambios de estado y enriquecer las alertas mediante consultas a los logs del sistema.
+
+Validamos la configuración de los componentes, la publicación de notificaciones SNS y una invocación sintética de Lambda que ejecutó la consulta de logs y publicó el resultado. Estas comprobaciones demuestran el funcionamiento de componentes individuales, pero no equivalen a una detección completa de un incidente operativo real. Durante la revisión de los logs encontramos eventos asociados a los experimentos de caos, pero no coincidencias de errores operativos en la consulta realizada al excluir los eventos inyectados. La alarma de anomalías tampoco llegó a demostrar una detección efectiva durante las pruebas documentadas.
+
+Conservamos esta distinción entre configuración y comportamiento comprobado. El módulo establece la base para correlacionar señales, enriquecer alertas y centralizar notificaciones; queda pendiente demostrar el flujo completo ante una condición operativa real y medir indicadores como el tiempo de detección (MTTD) y la reducción de alertas innecesarias. La configuración, las pruebas realizadas y las evidencias se describen en la [documentación del Módulo B](docs/Modulo-B-AIOps-Deteccion-Automática-de-Anomalías.md), con las capturas correspondientes en [`docs/evidence/integrator/aws/module-b/`](docs/evidence/integrator/aws/Punto-b).
+
 ## Preparación de AWS RDS
 
 data-service admite `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_SSLMODE` y `DATABASE_SSLROOTCERT`. TLS utiliza `verify-full` por defecto fuera del Compose local; montar el certificado CA de RDS y configurar su ruta en `DATABASE_SSLROOTCERT`. `DATABASE_URL` tiene prioridad y debe incluir TLS seguro si se utiliza para RDS. Compose local configura PostgreSQL con TLS desactivado únicamente dentro de la red local de contenedores.
