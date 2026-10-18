@@ -1,7 +1,7 @@
 """Short local functional runs, not a replacement for the five-minute benchmark."""
 import subprocess,json
 from pathlib import Path
-root=Path.cwd();out=root/'docs/evidence/reference';out.mkdir(parents=True,exist_ok=True)
+root=Path.cwd();out=root/'docs/evidence/integrator/reference';out.mkdir(parents=True,exist_ok=True)
 results=[]
 for mode in ['normal','errors','spike']:
  cmd=['docker','compose','-f','compose.otel.yml','run','--rm','-e','MODE='+mode,'-e','VUS=10','-e','DURATION=20s','-e','PEAK_VUS=20','-e','RAMP=10s','-e','HOLD=10s','k6','run','--summary-export=/results/reference/k6-'+mode+'.json','/scripts/scenarios.js']

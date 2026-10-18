@@ -3,7 +3,7 @@ import os, json, time, subprocess, urllib.request, statistics, re, csv
 from datetime import datetime, timezone
 from pathlib import Path
 compose=['docker','compose','-f','compose.otel.yml']
-out=Path('docs/evidence');out.mkdir(parents=True,exist_ok=True)
+out=Path('docs/evidence/integrator');out.mkdir(parents=True,exist_ok=True)
 def run(args, env=None): return subprocess.run(compose+args,check=True,env=env,text=True,capture_output=True)
 def mib(s):
     value,unit=re.match(r'([0-9.]+)\s*(\w+)',s).groups()
@@ -18,7 +18,7 @@ try:
     run(['up','-d','--wait','service-a','service-b'],env)
     print(label+': warmup 20s',flush=True)
     run(['run','--rm','-e','DURATION=20s','-e','VUS=50','-e','SEED_ID='+seed,'k6','run','/scripts/load.js'],env)
-    ids={s:run(['ps','-q',s]).stdout.strip() for s in ['service-a','service-b','collector']}
+    ids={s:run(['ps','-q',s]).stdout.strip() for s in ['service-a','service-b','data-service','collector']}
     rows=[];started=datetime.now(timezone.utc).isoformat()
     with (out/(label+'.log')).open('w') as log:
         proc=subprocess.Popen(compose+['run','--rm','-e','DURATION=5m','-e','VUS=50','-e','SEED_ID='+seed,'k6','run','--summary-export=/results/'+label+'.json','/scripts/load.js'],env=env,stdout=log,stderr=subprocess.STDOUT)
@@ -41,7 +41,7 @@ finally:
  run(['up','-d','--wait','service-a','service-b'],dict(os.environ,OTEL_ENABLED='true'))
 base=results['without-otel'];obs=results['with-otel']
 def delta(a,b): return {'absolute':b-a,'percent':(b-a)/a*100 if a else None}
-results['comparison']={'p99_ms':delta(base['p99_ms'],obs['p99_ms']), 'apps_cpu_percent':delta(sum(base['resources'][s]['cpu_mean_percent'] for s in ['service-a','service-b']),sum(obs['resources'][s]['cpu_mean_percent'] for s in ['service-a','service-b'])), 'apps_memory_mib':delta(sum(base['resources'][s]['memory_mean_mib'] for s in ['service-a','service-b']),sum(obs['resources'][s]['memory_mean_mib'] for s in ['service-a','service-b']))}
+results['comparison']={'p99_ms':delta(base['p99_ms'],obs['p99_ms']), 'apps_cpu_percent':delta(sum(base['resources'][s]['cpu_mean_percent'] for s in ['service-a','service-b','data-service']),sum(obs['resources'][s]['cpu_mean_percent'] for s in ['service-a','service-b','data-service'])), 'apps_memory_mib':delta(sum(base['resources'][s]['memory_mean_mib'] for s in ['service-a','service-b','data-service']),sum(obs['resources'][s]['memory_mean_mib'] for s in ['service-a','service-b','data-service']))}
 results['conditions']={'vus':50,'duration':'5m per mode','warmup':'20s per mode','pairs':1,'seed_id':seed,'collector':'running in both modes; baseline receives no application OTLP','app_limits':'each 1 CPU / 512 MiB','resource_sampling':'docker stats every ~5s, mean per service','limitations':'single ordered pair; no statistical significance; other local containers remain active'}
 (out/'benchmark.json').write_text(json.dumps(results,indent=2))
 print(json.dumps(results['comparison'],indent=2))

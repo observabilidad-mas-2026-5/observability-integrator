@@ -1,7 +1,7 @@
 import json,base64,urllib.request,hashlib,subprocess
 from pathlib import Path
 from urllib.parse import urlencode
-root=Path.cwd();out=root/'docs/evidence/reference';out.mkdir(parents=True,exist_ok=True)
+root=Path.cwd();out=root/'docs/evidence/integrator/reference';out.mkdir(parents=True,exist_ok=True)
 auth='Basic '+base64.b64encode(b'lab:local-lab-only').decode()
 def fetch(path):
     req=urllib.request.Request('http://127.0.0.1:23000'+path,headers={'Authorization':auth})
@@ -9,14 +9,18 @@ def fetch(path):
 loki=fetch('/api/datasources/uid/loki')['jsonData'];jaeger=fetch('/api/datasources/uid/jaeger')['jsonData']
 assert loki['derivedFields'][0]['url']=='${__value.raw}','Grafana interpolated away the derived URL'
 query=jaeger['tracesToLogsV2']['query'];assert '${__span.traceId}' in query
-traceid=json.loads((root/'docs/evidence/validation.json').read_text(encoding='utf-8'))['trace_id']
+traceid=json.loads((root/'docs/evidence/integrator/validation.json').read_text(encoding='utf-8'))['trace_id']
 trace=fetch('/api/datasources/proxy/uid/jaeger/api/traces/'+traceid)['data'][0]
 start=min(s['startTime'] for s in trace['spans'])*1000-60_000_000_000
 end=max(s['startTime']+s['duration'] for s in trace['spans'])*1000+60_000_000_000
 resolved=query.replace('${__span.traceId}',traceid)
 logs=fetch('/api/datasources/proxy/uid/loki/loki/api/v1/query_range?'+urlencode({'query':resolved,'start':start,'end':end,'limit':100}))
 services={r['stream'].get('service_name') for r in logs['data']['result']}
-assert {'service-a','service-b'}<=services
+assert {'service-a','service-b','data-service'}<=services
+span_services={span['spanID']:trace['processes'][span['processID']]['serviceName'] for span in trace['spans']}
+assert all(result['stream'].get('trace_id')==traceid and
+           span_services.get(result['stream'].get('span_id'))==result['stream'].get('service_name')
+           for result in logs['data']['result']), 'Log span does not belong to the traced service'
 id=subprocess.check_output(['docker','compose','-f','compose.otel.yml','ps','-q','service-a'],text=True).strip()
 image_hashes=json.loads(subprocess.check_output(['docker','exec',id,'python','-c',"import hashlib,pathlib,json; print(json.dumps({p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in pathlib.Path('/app/app').glob('*.py')}))"],text=True))
 local_hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/'app').glob('*.py')}

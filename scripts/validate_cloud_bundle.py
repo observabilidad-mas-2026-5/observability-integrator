@@ -1,7 +1,7 @@
 """Build and exercise cloud images entirely on local Docker, then stop own containers."""
 import os, subprocess, json, uuid, time, urllib.request, urllib.error, base64
 from pathlib import Path
-root=Path.cwd();e=root/'docs/evidence';images={};containers={}
+root=Path.cwd();e=root/'docs/evidence/integrator';e.mkdir(parents=True,exist_ok=True);images={};containers={}
 def run(cmd):
     r=subprocess.run(cmd,text=True,capture_output=True)
     if r.returncode: raise RuntimeError(r.stderr+r.stdout)
@@ -28,7 +28,8 @@ try:
     for name in ['loki','collector','prometheus']:start(name,images[name]['tag'])
     start('grafana',images['grafana']['tag'],env={'GF_SECURITY_ADMIN_USER':'lab','GF_SECURITY_ADMIN_PASSWORD':'local-lab-only','GF_SERVER_ROOT_URL':'%(protocol)s://%(domain)s/grafana/','GF_SERVER_SERVE_FROM_SUB_PATH':'true'})
     common={'OTEL_ENABLED':'true','OTEL_EXPORTER_OTLP_ENDPOINT':'http://127.0.0.1:4318'}
-    start('service-b','observability-integrator-api:local',['uvicorn','app.storage:app','--host','0.0.0.0','--port','8001'],dict(common,OTEL_SERVICE_NAME='service-b-cloud-smoke',DATABASE_URL='postgresql+psycopg://lab:local-lab-only@postgres:5432/credits'))
+    start('data-service','observability-integrator-api:local',['uvicorn','app.data_service:app','--host','0.0.0.0','--port','8002'],dict(common,OTEL_SERVICE_NAME='data-service-cloud-smoke',DATABASE_URL='postgresql+psycopg://lab:local-lab-only@postgres:5432/credits'))
+    start('service-b','observability-integrator-api:local',['uvicorn','app.storage:app','--host','0.0.0.0','--port','8001'],dict(common,OTEL_SERVICE_NAME='service-b-cloud-smoke',DATA_SERVICE_URL='http://127.0.0.1:8002'))
     start('service-a','observability-integrator-api:local',env=dict(common,OTEL_SERVICE_NAME='service-a-cloud-smoke',SERVICE_B_URL='http://127.0.0.1:8001'))
     start('gateway',images['gateway']['tag'])
     for _ in range(60):
@@ -51,7 +52,7 @@ try:
         time.sleep(1)
     assert traces['data']
     services={p['serviceName'] for p in traces['data'][0]['processes'].values()}
-    assert {'service-a-cloud-smoke','service-b-cloud-smoke'}<=services
+    assert {'service-a-cloud-smoke','service-b-cloud-smoke','data-service-cloud-smoke'}<=services
     for _ in range(20):
         targets=fetch('/prometheus/api/v1/targets')
         if all(t['health']=='up' for t in targets['data']['activeTargets']):break

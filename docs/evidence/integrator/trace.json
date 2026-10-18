@@ -1,0 +1,1184 @@
+{
+  "data": [
+    {
+      "traceID": "ff49725ffe1d4584b007b85a492fad59",
+      "spans": [
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "5c41873c600e51fd",
+          "operationName": "POST /credit-applications",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "1d58f25eb887bb40"
+            }
+          ],
+          "startTime": 1792297252081553,
+          "duration": 28536,
+          "tags": [
+            {
+              "key": "http.flavor",
+              "type": "string",
+              "value": "1.1"
+            },
+            {
+              "key": "http.host",
+              "type": "string",
+              "value": "172.21.0.9:8001"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "POST"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/credit-applications"
+            },
+            {
+              "key": "http.scheme",
+              "type": "string",
+              "value": "http"
+            },
+            {
+              "key": "http.server_name",
+              "type": "string",
+              "value": "service-b:8001"
+            },
+            {
+              "key": "http.status_code",
+              "type": "int64",
+              "value": 201
+            },
+            {
+              "key": "http.target",
+              "type": "string",
+              "value": "/credit-applications"
+            },
+            {
+              "key": "http.url",
+              "type": "string",
+              "value": "http://service-b:8001/credit-applications"
+            },
+            {
+              "key": "http.user_agent",
+              "type": "string",
+              "value": "python-httpx/0.27.2"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "net.host.port",
+              "type": "int64",
+              "value": 8001
+            },
+            {
+              "key": "net.peer.ip",
+              "type": "string",
+              "value": "172.21.0.10"
+            },
+            {
+              "key": "net.peer.port",
+              "type": "int64",
+              "value": 48114
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "50775ca5650edfb1",
+          "operationName": "POST /credit-applications http receive",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "99356b7a7d1033e5"
+            }
+          ],
+          "startTime": 1792297252086905,
+          "duration": 599,
+          "tags": [
+            {
+              "key": "asgi.event.type",
+              "type": "string",
+              "value": "http.request"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "a6c99111b12b8943",
+          "operationName": "POST /credit-applications http send",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "99356b7a7d1033e5"
+            }
+          ],
+          "startTime": 1792297252105831,
+          "duration": 56,
+          "tags": [
+            {
+              "key": "asgi.event.type",
+              "type": "string",
+              "value": "http.response.start"
+            },
+            {
+              "key": "http.status_code",
+              "type": "int64",
+              "value": 201
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "2fded7ec43766a94",
+          "operationName": "POST /credit-applications http send",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "75a81f5b8ebe3bf5"
+            }
+          ],
+          "startTime": 1792297252115174,
+          "duration": 172,
+          "tags": [
+            {
+              "key": "asgi.event.type",
+              "type": "string",
+              "value": "http.response.body"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "673b072d8e25829d",
+          "operationName": "INSERT credits",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "23f2099fc3293129"
+            }
+          ],
+          "startTime": 1792297252093241,
+          "duration": 7087,
+          "tags": [
+            {
+              "key": "db.name",
+              "type": "string",
+              "value": "credits"
+            },
+            {
+              "key": "db.namespace",
+              "type": "string",
+              "value": "credits"
+            },
+            {
+              "key": "db.operation.name",
+              "type": "string",
+              "value": "INSERT"
+            },
+            {
+              "key": "db.system",
+              "type": "string",
+              "value": "postgresql"
+            },
+            {
+              "key": "db.system.name",
+              "type": "string",
+              "value": "postgresql"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "net.peer.name",
+              "type": "string",
+              "value": "postgres"
+            },
+            {
+              "key": "net.peer.port",
+              "type": "int64",
+              "value": 5432
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.sqlalchemy"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "99356b7a7d1033e5",
+          "operationName": "POST /credit-applications",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "2aeed0f02bd69c87"
+            }
+          ],
+          "startTime": 1792297252085956,
+          "duration": 20886,
+          "tags": [
+            {
+              "key": "http.flavor",
+              "type": "string",
+              "value": "1.1"
+            },
+            {
+              "key": "http.host",
+              "type": "string",
+              "value": "172.21.0.8:8002"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "POST"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/credit-applications"
+            },
+            {
+              "key": "http.scheme",
+              "type": "string",
+              "value": "http"
+            },
+            {
+              "key": "http.server_name",
+              "type": "string",
+              "value": "data-service:8002"
+            },
+            {
+              "key": "http.status_code",
+              "type": "int64",
+              "value": 201
+            },
+            {
+              "key": "http.target",
+              "type": "string",
+              "value": "/credit-applications"
+            },
+            {
+              "key": "http.url",
+              "type": "string",
+              "value": "http://data-service:8002/credit-applications"
+            },
+            {
+              "key": "http.user_agent",
+              "type": "string",
+              "value": "python-httpx/0.27.2"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "net.host.port",
+              "type": "int64",
+              "value": 8002
+            },
+            {
+              "key": "net.peer.ip",
+              "type": "string",
+              "value": "172.21.0.9"
+            },
+            {
+              "key": "net.peer.port",
+              "type": "int64",
+              "value": 34800
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "75a81f5b8ebe3bf5",
+          "operationName": "POST /credit-applications",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "0123456789abcdef"
+            }
+          ],
+          "startTime": 1792297252074348,
+          "duration": 41483,
+          "tags": [
+            {
+              "key": "http.flavor",
+              "type": "string",
+              "value": "1.1"
+            },
+            {
+              "key": "http.host",
+              "type": "string",
+              "value": "172.21.0.10:8000"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "POST"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/credit-applications"
+            },
+            {
+              "key": "http.scheme",
+              "type": "string",
+              "value": "http"
+            },
+            {
+              "key": "http.server_name",
+              "type": "string",
+              "value": "127.0.0.1:28000"
+            },
+            {
+              "key": "http.status_code",
+              "type": "int64",
+              "value": 201
+            },
+            {
+              "key": "http.target",
+              "type": "string",
+              "value": "/credit-applications"
+            },
+            {
+              "key": "http.url",
+              "type": "string",
+              "value": "http://127.0.0.1:28000/credit-applications"
+            },
+            {
+              "key": "http.user_agent",
+              "type": "string",
+              "value": "Python-urllib/3.13"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "net.host.port",
+              "type": "int64",
+              "value": 8000
+            },
+            {
+              "key": "net.peer.ip",
+              "type": "string",
+              "value": "172.21.0.1"
+            },
+            {
+              "key": "net.peer.port",
+              "type": "int64",
+              "value": 51936
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": [
+            "invalid parent span IDs=0123456789abcdef; skipping clock skew adjustment"
+          ]
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "1d58f25eb887bb40",
+          "operationName": "POST",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "699809d6e1b96929"
+            }
+          ],
+          "startTime": 1792297252077861,
+          "duration": 32518,
+          "tags": [
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "POST"
+            },
+            {
+              "key": "http.status_code",
+              "type": "int64",
+              "value": 201
+            },
+            {
+              "key": "http.url",
+              "type": "string",
+              "value": "http://service-b:8001/credit-applications"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.httpx"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "a193150bcea15b2b",
+          "operationName": "POST /credit-applications http receive",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "5c41873c600e51fd"
+            }
+          ],
+          "startTime": 1792297252082493,
+          "duration": 34,
+          "tags": [
+            {
+              "key": "asgi.event.type",
+              "type": "string",
+              "value": "http.request"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "23f2099fc3293129",
+          "operationName": "credit.persist",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "99356b7a7d1033e5"
+            }
+          ],
+          "startTime": 1792297252088787,
+          "duration": 15241,
+          "tags": [
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "credit-lab"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "afd67bbed09a39ff",
+          "operationName": "POST /credit-applications http receive",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "75a81f5b8ebe3bf5"
+            }
+          ],
+          "startTime": 1792297252075231,
+          "duration": 57,
+          "tags": [
+            {
+              "key": "asgi.event.type",
+              "type": "string",
+              "value": "http.request"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "699809d6e1b96929",
+          "operationName": "credit.create",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "75a81f5b8ebe3bf5"
+            }
+          ],
+          "startTime": 1792297252076891,
+          "duration": 35693,
+          "tags": [
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "credit-lab"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "2c3cb94f97ea9073",
+          "operationName": "POST /credit-applications http send",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "75a81f5b8ebe3bf5"
+            }
+          ],
+          "startTime": 1792297252113944,
+          "duration": 77,
+          "tags": [
+            {
+              "key": "asgi.event.type",
+              "type": "string",
+              "value": "http.response.start"
+            },
+            {
+              "key": "http.status_code",
+              "type": "int64",
+              "value": 201
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "2aeed0f02bd69c87",
+          "operationName": "POST",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "104a9d20f23bf7e5"
+            }
+          ],
+          "startTime": 1792297252084394,
+          "duration": 22520,
+          "tags": [
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "POST"
+            },
+            {
+              "key": "http.status_code",
+              "type": "int64",
+              "value": 201
+            },
+            {
+              "key": "http.url",
+              "type": "string",
+              "value": "http://data-service:8002/credit-applications"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.httpx"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "104a9d20f23bf7e5",
+          "operationName": "credit.data.request",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "5c41873c600e51fd"
+            }
+          ],
+          "startTime": 1792297252083377,
+          "duration": 24386,
+          "tags": [
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "credit-lab"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "68c829f103a5e10f",
+          "operationName": "POST /credit-applications http send",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "5c41873c600e51fd"
+            }
+          ],
+          "startTime": 1792297252109111,
+          "duration": 49,
+          "tags": [
+            {
+              "key": "asgi.event.type",
+              "type": "string",
+              "value": "http.response.start"
+            },
+            {
+              "key": "http.status_code",
+              "type": "int64",
+              "value": 201
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "a2071362c2661f26",
+          "operationName": "POST /credit-applications http send",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "5c41873c600e51fd"
+            }
+          ],
+          "startTime": 1792297252109855,
+          "duration": 30,
+          "tags": [
+            {
+              "key": "asgi.event.type",
+              "type": "string",
+              "value": "http.response.body"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "f11ce49db16c29a1",
+          "operationName": "connect",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "23f2099fc3293129"
+            }
+          ],
+          "startTime": 1792297252089133,
+          "duration": 799,
+          "tags": [
+            {
+              "key": "db.name",
+              "type": "string",
+              "value": "credits"
+            },
+            {
+              "key": "db.namespace",
+              "type": "string",
+              "value": "credits"
+            },
+            {
+              "key": "db.system",
+              "type": "string",
+              "value": "postgresql"
+            },
+            {
+              "key": "db.system.name",
+              "type": "string",
+              "value": "postgresql"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "net.peer.name",
+              "type": "string",
+              "value": "postgres"
+            },
+            {
+              "key": "net.peer.port",
+              "type": "int64",
+              "value": 5432
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.sqlalchemy"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "ff49725ffe1d4584b007b85a492fad59",
+          "spanID": "fb44f93d210baf26",
+          "operationName": "POST /credit-applications http send",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "ff49725ffe1d4584b007b85a492fad59",
+              "spanID": "99356b7a7d1033e5"
+            }
+          ],
+          "startTime": 1792297252106564,
+          "duration": 42,
+          "tags": [
+            {
+              "key": "asgi.event.type",
+              "type": "string",
+              "value": "http.response.body"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "opentelemetry.instrumentation.fastapi"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.59b0"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        }
+      ],
+      "processes": {
+        "p1": {
+          "serviceName": "service-b",
+          "tags": [
+            {
+              "key": "deployment.environment",
+              "type": "string",
+              "value": "lab"
+            },
+            {
+              "key": "lab.name",
+              "type": "string",
+              "value": "credit-lab"
+            },
+            {
+              "key": "telemetry.sdk.language",
+              "type": "string",
+              "value": "python"
+            },
+            {
+              "key": "telemetry.sdk.name",
+              "type": "string",
+              "value": "opentelemetry"
+            },
+            {
+              "key": "telemetry.sdk.version",
+              "type": "string",
+              "value": "1.38.0"
+            }
+          ]
+        },
+        "p2": {
+          "serviceName": "data-service",
+          "tags": [
+            {
+              "key": "deployment.environment",
+              "type": "string",
+              "value": "lab"
+            },
+            {
+              "key": "lab.name",
+              "type": "string",
+              "value": "credit-lab"
+            },
+            {
+              "key": "telemetry.sdk.language",
+              "type": "string",
+              "value": "python"
+            },
+            {
+              "key": "telemetry.sdk.name",
+              "type": "string",
+              "value": "opentelemetry"
+            },
+            {
+              "key": "telemetry.sdk.version",
+              "type": "string",
+              "value": "1.38.0"
+            }
+          ]
+        },
+        "p3": {
+          "serviceName": "service-a",
+          "tags": [
+            {
+              "key": "deployment.environment",
+              "type": "string",
+              "value": "lab"
+            },
+            {
+              "key": "lab.name",
+              "type": "string",
+              "value": "credit-lab"
+            },
+            {
+              "key": "telemetry.sdk.language",
+              "type": "string",
+              "value": "python"
+            },
+            {
+              "key": "telemetry.sdk.name",
+              "type": "string",
+              "value": "opentelemetry"
+            },
+            {
+              "key": "telemetry.sdk.version",
+              "type": "string",
+              "value": "1.38.0"
+            }
+          ]
+        }
+      },
+      "warnings": null
+    }
+  ],
+  "total": 0,
+  "limit": 0,
+  "offset": 0,
+  "errors": null
+}

@@ -1,0 +1,94 @@
+{
+  "trace_id": "ff49725ffe1d4584b007b85a492fad59",
+  "application_id": "3d84d4b7-7be7-437c-ac76-a4225498fdb6",
+  "checks": [
+    {
+      "name": "health",
+      "passed": true
+    },
+    {
+      "name": "create pending",
+      "passed": true
+    },
+    {
+      "name": "read",
+      "passed": true
+    },
+    {
+      "name": "list contains created",
+      "passed": true
+    },
+    {
+      "name": "update",
+      "passed": true
+    },
+    {
+      "name": "missing 404",
+      "passed": true
+    },
+    {
+      "name": "validation 422",
+      "passed": true
+    },
+    {
+      "name": "persistent after data-service restart",
+      "passed": true
+    },
+    {
+      "name": "one trace across A B data-service",
+      "passed": true
+    },
+    {
+      "name": "postgres span",
+      "passed": true
+    },
+    {
+      "name": "B child of A",
+      "passed": true
+    },
+    {
+      "name": "data-service child of B",
+      "passed": true
+    },
+    {
+      "name": "SQL belongs to data-service",
+      "passed": true
+    },
+    {
+      "name": "SQL operation attributes",
+      "passed": true
+    },
+    {
+      "name": "no SQL statements or parameters",
+      "passed": true
+    },
+    {
+      "name": "no synthetic PII in trace",
+      "passed": true
+    },
+    {
+      "name": "correlated logs A B data-service in Loki via Grafana",
+      "passed": true
+    },
+    {
+      "name": "prometheus targets up",
+      "passed": true
+    },
+    {
+      "name": "three app scrape targets",
+      "passed": true
+    },
+    {
+      "name": "HTTP metrics three services",
+      "passed": true
+    },
+    {
+      "name": "application metrics three services",
+      "passed": true
+    },
+    {
+      "name": "six panels provisioned",
+      "passed": true
+    }
+  ]
+}

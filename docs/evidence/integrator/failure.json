@@ -1,0 +1,18 @@
+[
+  {
+    "dependency": "data-service",
+    "status": 503,
+    "body": {
+      "detail": "Credit storage unavailable"
+    },
+    "trace_id": "ce8d9400a5ee4cbf8ac227e623256a9e"
+  },
+  {
+    "dependency": "service-b",
+    "status": 503,
+    "body": {
+      "detail": "Credit storage unavailable"
+    },
+    "trace_id": "7a7ec741aad4457b891f2cb9f70b44c9"
+  }
+]

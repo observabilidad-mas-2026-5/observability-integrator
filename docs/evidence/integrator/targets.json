@@ -1,0 +1,128 @@
+{
+  "status": "success",
+  "data": {
+    "activeTargets": [
+      {
+        "discoveredLabels": {
+          "__address__": "service-a:8000",
+          "__metrics_path__": "/metrics",
+          "__scheme__": "http",
+          "__scrape_interval__": "5s",
+          "__scrape_timeout__": "5s",
+          "job": "apps"
+        },
+        "labels": {
+          "instance": "service-a:8000",
+          "job": "apps"
+        },
+        "scrapePool": "apps",
+        "scrapeUrl": "http://service-a:8000/metrics",
+        "globalUrl": "http://service-a:8000/metrics",
+        "lastError": "",
+        "lastScrape": "2026-10-18T04:20:59.678249456Z",
+        "lastScrapeDuration": 0.006526048,
+        "health": "up",
+        "scrapeInterval": "5s",
+        "scrapeTimeout": "5s"
+      },
+      {
+        "discoveredLabels": {
+          "__address__": "service-b:8001",
+          "__metrics_path__": "/metrics",
+          "__scheme__": "http",
+          "__scrape_interval__": "5s",
+          "__scrape_timeout__": "5s",
+          "job": "apps"
+        },
+        "labels": {
+          "instance": "service-b:8001",
+          "job": "apps"
+        },
+        "scrapePool": "apps",
+        "scrapeUrl": "http://service-b:8001/metrics",
+        "globalUrl": "http://service-b:8001/metrics",
+        "lastError": "",
+        "lastScrape": "2026-10-18T04:21:00.471813521Z",
+        "lastScrapeDuration": 0.005416261,
+        "health": "up",
+        "scrapeInterval": "5s",
+        "scrapeTimeout": "5s"
+      },
+      {
+        "discoveredLabels": {
+          "__address__": "data-service:8002",
+          "__metrics_path__": "/metrics",
+          "__scheme__": "http",
+          "__scrape_interval__": "5s",
+          "__scrape_timeout__": "5s",
+          "job": "apps"
+        },
+        "labels": {
+          "instance": "data-service:8002",
+          "job": "apps"
+        },
+        "scrapePool": "apps",
+        "scrapeUrl": "http://data-service:8002/metrics",
+        "globalUrl": "http://data-service:8002/metrics",
+        "lastError": "",
+        "lastScrape": "2026-10-18T04:21:01.622740083Z",
+        "lastScrapeDuration": 0.008149094,
+        "health": "up",
+        "scrapeInterval": "5s",
+        "scrapeTimeout": "5s"
+      },
+      {
+        "discoveredLabels": {
+          "__address__": "collector:8888",
+          "__metrics_path__": "/metrics",
+          "__scheme__": "http",
+          "__scrape_interval__": "5s",
+          "__scrape_timeout__": "5s",
+          "job": "collector"
+        },
+        "labels": {
+          "instance": "collector:8888",
+          "job": "collector"
+        },
+        "scrapePool": "collector",
+        "scrapeUrl": "http://collector:8888/metrics",
+        "globalUrl": "http://collector:8888/metrics",
+        "lastError": "",
+        "lastScrape": "2026-10-18T04:20:58.783101202Z",
+        "lastScrapeDuration": 0.008117647,
+        "health": "up",
+        "scrapeInterval": "5s",
+        "scrapeTimeout": "5s"
+      },
+      {
+        "discoveredLabels": {
+          "__address__": "collector:8889",
+          "__metrics_path__": "/metrics",
+          "__scheme__": "http",
+          "__scrape_interval__": "5s",
+          "__scrape_timeout__": "5s",
+          "job": "otel-apps"
+        },
+        "labels": {
+          "instance": "collector:8889",
+          "job": "otel-apps"
+        },
+        "scrapePool": "otel-apps",
+        "scrapeUrl": "http://collector:8889/metrics",
+        "globalUrl": "http://collector:8889/metrics",
+        "lastError": "",
+        "lastScrape": "2026-10-18T04:20:58.917314504Z",
+        "lastScrapeDuration": 0.058121505,
+        "health": "up",
+        "scrapeInterval": "5s",
+        "scrapeTimeout": "5s"
+      }
+    ],
+    "droppedTargets": [],
+    "droppedTargetCounts": {
+      "apps": 0,
+      "collector": 0,
+      "otel-apps": 0
+    }
+  }
+}
