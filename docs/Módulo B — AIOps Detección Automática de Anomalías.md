@@ -205,16 +205,15 @@ Las capturas y resultados asociados a este módulo se almacenan en:
 
 `docs/evidence/integrator/aws/module-b/`
 
-Evidencias recomendadas para conservar:
 
-1. ![Resultado de la prueba sintética de Lambda](evidence/integrator/aws/punto-b/01-cloudwatch-p99-alarm.png)
-2. `02-cloudwatch-anomaly-alarm.png`: configuración y estado de la alarma de anomalías.
-3. `03-cloudwatch-composite-alarm.png`: regla de correlación de la alarma compuesta.
-4. `04-sns-confirmation.png`: suscripción confirmada o correo de prueba recibido.
-5. `05-eventbridge-lambda.png`: configuración de la regla y función de enriquecimiento.
-6. `06-lambda-synthetic-test.png`: ejecución sintética y resultado de publicación.
-7. `07-cloudwatch-chaos-traces.png`: registros de caos con `trace_id` y `span_id`.
-8. `08-operational-errors-query.png`: consulta que excluye eventos de caos y devuelve
-   cero coincidencias.
+1. ![configuración de la alarma de latencia p99](evidence/integrator/aws/Punto-b/01-cloudwatch-p99-alarm.png)
+2. ![configuración y estado de la alarma de anomalías](evidence/integrator/aws/Punto-b/02-cloudwatch-anomaly-alarm.png)
+3. ![regla de correlación de la alarma compuesta](evidence/integrator/aws/Punto-b/03-cloudwatch-composite-alarm.png)
+4. ![suscripción confirmada o correo de prueba recibido](evidence/integrator/aws/Punto-b/04-sns-confirmation.png)
+5. ![configuración de la regla y función de enriquecimiento.](evidence/integrator/aws/Punto-b/05-eventbridge-lambda.png)
+6. ![ejecución sintética y resultado de publicación.](evidence/integrator/aws/Punto-b/06-lambda-synthetic-test.png)
+7. ![registros de caos con `trace_id` y `span_id`](evidence/integrator/aws/Punto-b/07-cloudwatch-chaos-traces.png`)
+8. ![consulta que excluye eventos de caos y devuelve
+   cero coincidencias.](evidence/integrator/aws/Punto-b/08-operational-errors-query.png)
 
 
