@@ -1,10 +1,10 @@
-# Laboratorio local de créditos y OpenTelemetry
+# Guía local y referencia histórica de OpenTelemetry
 
 ## Etapa 0: preservar el proyecto
 
-Ejecutamos nuestro laboratorio con `compose.otel.yml` y las configuraciones de `otel/`, conservando Dockerfile y todos los contratos públicos de créditos. La aplicación utiliza memoria cuando SERVICE_B_URL no está definido; el Compose del laboratorio define esa variable y todas las operaciones pasan por HTTP a B y PostgreSQL. El contenido previo del diccionario no migra automáticamente: es memoria del proceso, no una base recuperable. Para migrar datos existentes, los exportamos antes de parar la API antigua y los reingresamos mediante POST; se generan nuevos UUID. Conservamos físicamente los componentes del laboratorio anterior y los excluimos de Git.
+En nuestro laboratorio actual ejecutamos Service A → Service B → data-service → PostgreSQL con `compose.otel.yml` y las configuraciones de `otel/`. Conservamos Dockerfile y los contratos públicos de créditos. La aplicación de A utiliza memoria cuando SERVICE_B_URL no está definido; en Compose configuramos esa variable y delegamos la persistencia exclusivamente en data-service. La memoria de un proceso anterior no migra automáticamente ni constituye una base recuperable. Para una migración de datos necesitamos exportarlos antes de detener la API y reingresarlos mediante POST, que genera nuevos UUID. Conservamos físicamente los componentes históricos fuera de Git.
 
-Conservamos esta guía del laboratorio OpenTelemetry anterior como referencia local. El inventario del ZIP de la profesora pertenecía a ese laboratorio y no lo incluimos aquí. Para ejecutar el integrador no necesitamos ese ZIP ni herramientas locales del asistente; consultamos primero el [README vigente](../README.md) para la arquitectura de tres servicios y sus puertos.
+Conservamos el procedimiento del laboratorio OpenTelemetry anterior como referencia histórica y lo distinguimos de la arquitectura actual de tres servicios. El ZIP de referencia no es necesario para iniciar el integrador. Para la ejecución vigente consultamos primero el [README](../README.md), que reúne comandos, imágenes y puertos actuales.
 
 Conservamos los comandos, puertos, etiquetas de imágenes y conteos de pruebas heredados como referencia histórica, no como resultados actuales del integrador. Para ejecutar nuestra versión vigente utilizamos los comandos y puertos del README; distinguimos estas instrucciones históricas de las evidencias actuales.
 
@@ -29,6 +29,10 @@ python scripts/validate_local.py
 
 Las imágenes se descargan y se crean tres volúmenes dedicados para PostgreSQL, Prometheus y Loki. No se usan container_name ni los puertos del monitoreo anterior. `.env.example` permite configurar puertos y credenciales locales; copiarlo a `.env` es opcional. Las contraseñas de ejemplo son exclusivamente locales y el stack publica solo en 127.0.0.1.
 
+### Puertos históricos: no corresponden al integrador actual
+
+La siguiente tabla documenta el laboratorio anterior. Para nuestra ejecución actual utilizamos los puertos del [README vigente](../README.md#ejecución-local), sin reutilizar los puertos históricos.
+
 | Herramienta | URL local | Función |
 |---|---|---|
 | API A | http://localhost:18000/docs | Contratos originales de créditos |
@@ -37,7 +41,7 @@ Las imágenes se descargan y se crean tres volúmenes dedicados para PostgreSQL,
 | Grafana | http://localhost:13000 | Dashboard y Explore de Loki |
 | OTLP gRPC / HTTP | localhost:14317 / localhost:14318 | Recepción de telemetría |
 
-Grafana: usuario `lab`, contraseña local `local-lab-only` o GRAFANA_PASSWORD. B y PostgreSQL solo son accesibles en la red Compose. La sonda de B consulta SELECT 1. A indica vida del proceso; la disponibilidad de B se verifica con operaciones de negocio y la sonda propia de B.
+En el laboratorio anterior utilizábamos Grafana con usuario `lab`, contraseña local `local-lab-only` o GRAFANA_PASSWORD. En nuestra arquitectura actual B delega su sonda en data-service, que ejecuta SELECT 1; A comprueba la vida de su proceso. Validamos la disponibilidad de negocio con las operaciones completas, no solo con esas sondas. Conservamos debajo el ejemplo HTTP histórico, cuyos puertos no corresponden a la ejecución actual.
 
 ```powershell
 $body = @{customer_name='Synthetic';document_number='TEST';requested_amount=100} | ConvertTo-Json
@@ -53,9 +57,9 @@ Las métricas originales /metrics permanecen habilitadas en ambos modos. El SDK 
 
 ## Correlación y evidencias
 
-`python scripts/validate_local.py` genera un traceparent, comprueba el CRUD, 404, 422, persistencia tras reiniciar B, A/B/SQL en una sola traza, logs de A/B consultados a través del proxy de Grafana, targets de Prometheus y seis paneles provisionados. Guarda trace.json, logs.json, targets.json y validation.json en docs/evidence.
+En la versión actual, `python scripts/validate_local.py` genera un traceparent y comprueba CRUD, 404, 422, persistencia tras reiniciar data-service, relaciones A/B/data-service/SQL, logs de los tres servicios, targets de Prometheus y paneles provisionados. Conservamos los resultados históricos trace.json, logs.json, targets.json y validation.json en docs/evidence como referencia; las [evidencias del integrador](evidence/integrator/README.md) identifican las ejecuciones vigentes.
 
-En Grafana Explore seleccionamos Loki y consultamos:
+Conservamos la siguiente consulta histórica de Grafana Explore para A/B. Para observar el recorrido actual completo incluimos también data-service en el filtro de servicios, sin interpretar esta consulta parcial como evidencia de las tres aplicaciones.
 
 ```logql
 {service_name=~"service-a|service-b"} | trace_id="TRACE_ID_DE_VALIDATION_JSON"
@@ -63,7 +67,7 @@ En Grafana Explore seleccionamos Loki y consultamos:
 
 El campo estructurado trace_id tiene enlace interno a Jaeger. Los logs OTLP almacenan trace_id/span_id como metadatos estructurados; no son etiquetas indexadas, para evitar cardinalidad alta. Para correlacionar temporalmente las métricas utilizamos service_name/instance y una ventana de tiempo; no afirmamos que cada muestra agregada tenga trace_id. Hay configuración para exemplars, pero no dimos por verificadas su recepción y navegación visual.
 
-Los seis paneles son: latencia p95/p99, errores 5xx, tráfico, disponibilidad de scrape y proporción de éxito, CPU de A/B y fallos de exportación del Collector. El éxito se define como ausencia de 5xx, por lo que los 404/422 controlados no representan indisponibilidad. `up` indica disponibilidad de scrape, no un SLI end-to-end. Las latencias del dashboard son estimaciones por buckets; k6 calcula el p99 de sus observaciones. Cero solicitudes no demuestra disponibilidad de negocio. Las métricas de errores del Collector solo aparecen tras eventos en algunas versiones; el panel usa cero como valor inicial.
+En la configuración heredada documentamos seis paneles: latencia p95/p99, errores 5xx, tráfico, disponibilidad de scrape y proporción de éxito, CPU de A/B y fallos de exportación del Collector. Para el integrador consultamos la [validación actual del dashboard](evidence/integrator/dashboard-queries.json), sin trasladar automáticamente los conteos históricos. Definimos el éxito HTTP como ausencia de 5xx: los 404/422 controlados no representan indisponibilidad. `up` mide disponibilidad de scrape, no un SLI end-to-end. Distinguimos las estimaciones por buckets del dashboard de los percentiles de k6; cero solicitudes no demuestra disponibilidad de negocio. Un cero inicial en el panel del Collector tampoco prueba por sí solo una exportación correcta.
 
 ## Etapa 4: carga y recursos
 
@@ -71,13 +75,13 @@ Los seis paneles son: latencia p95/p99, errores 5xx, tráfico, disponibilidad de
 python scripts/benchmark.py
 ```
 
-Este comando tarda más de diez minutos: 20 segundos de warm-up y cinco minutos con 50 VUs por modo, primero sin SDK y luego con SDK. Reinicia A/B al cambiar OTEL_ENABLED, sin cambiar límites ni volumen. Reutiliza el mismo crédito sintético para GET y PUT y evita listas crecientes o datos nuevos por iteración. Las peticiones se etiquetan read/update para no crear series por UUID.
+Documentamos este benchmark como procedimiento de la base heredada, no como resultado actual: tarda más de diez minutos, con 20 segundos de warm-up y cinco minutos con 50 VUs por modo, primero sin SDK y luego con SDK. Reinicia A/B al cambiar OTEL_ENABLED, sin cambiar límites ni volumen. Reutiliza el mismo crédito sintético para GET y PUT y evita datos nuevos por iteración. Antes de aplicarlo a los tres servicios debemos revisar su cobertura de data-service; no lo ejecutamos como parte de esta revisión documental.
 
 Cada aplicación tiene límite de 1 CPU y 512 MiB; el Collector tiene igual límite. El Collector permanece activo en baseline y no recibe OTLP nuevo de aplicaciones. Las dependencias SDK permanecen instaladas/importadas: se mide instrumentación y exportación activa, no el costo de instalación de paquetes. Prometheus, Grafana, PostgreSQL, Jaeger y Loki siguen encendidos en ambos modos.
 
 Recopilamos como resultados: without-otel.json, with-otel.json, logs de k6, CSV de recursos y benchmark.json. Docker stats expresa CPU en porcentaje de un core y memoria de contenedor; para la comparación utilizamos promedios por servicio, sumados para A/B. Calculamos el overhead como (con-sin)/sin×100 y expresamos la memoria adicional en MiB. No confundimos RSS del proceso con la memoria del contenedor. La pareja única tiene orden fijo: no permite conclusiones estadísticas ni atribución causal exacta. Para el informe final recomendamos repetir con orden alternado.
 
-Podemos reproducir la falla controlada con `python scripts/validate_failure.py`: para B, necesitamos aprobación operativa si lo ejecutamos en un entorno compartido. El script detiene solo B de nuestro laboratorio, comprueba 503 en A y restaura B mediante finally. No elimina datos.
+Para las validaciones actuales utilizamos `python scripts/validate_failure.py`, con aprobación operativa en un entorno compartido. El script detiene por separado data-service y B, comprueba 503 en A y restaura las dependencias mediante finally. No elimina datos.
 
 ## Pruebas unitarias en Docker
 
@@ -86,7 +90,7 @@ $testsPath = Join-Path (Get-Location) 'tests'
 docker run --rm --mount "type=bind,source=$testsPath,target=/tests,readonly" -e PYTHONDONTWRITEBYTECODE=1 otel-credit-api:local python -m pytest /tests -q -p no:cacheprovider
 ```
 
-Diez pruebas: ocho previas y dos adicionales para HTTP remoto y 503. La suite usa memoria/mock; PostgreSQL y W3C se validan mediante integración real. Las advertencias de deprecación de TestClient no bloquean los contratos actuales.
+El ejemplo Docker anterior pertenece a la base histórica de diez pruebas: ocho previas y dos adicionales para HTTP remoto y 503. No utilizamos ese conteo para describir la suite actual: en la validación posterior a los experimentos registramos 47 pruebas Python aprobadas. Las pruebas con memoria o mocks no sustituyen la integración real PostgreSQL/W3C. Conservamos las advertencias de deprecación de TestClient.
 
 ## Detención y recuperación
 

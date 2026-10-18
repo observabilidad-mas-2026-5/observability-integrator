@@ -18,9 +18,11 @@ La primera ejecución `chaos-errors-v1` seleccionó por ordinal lógico y los re
 - Span `chaos.error` de data-service marcado ERROR, atributos de experimento, tasa 10 y HTTP 503.
 - Log ERROR `chaos.error.injected`, con trace_id/span_id. B y A pueden registrar éxito si el proxy recupera el intento; los eventos de dependencia no disponible solo aparecen si agotan los reintentos.
 - Contadores OTLP `chaos.error.eligible.requests` y `chaos.injected.errors`, scope `credit-lab.chaos`, recurso `data-service`.
-- HTTP servidor y métricas de proceso se conservan; no se crean alarmas ni dashboards.
+- HTTP servidor y métricas de proceso se conservan; no creamos alarmas ni dashboards.
 
 Reutilizamos las estadísticas nearest-rank p50/p95/p99 y el SLO de trabajo del experimento 1: **99,5 % de GET finales exitosos y ≤1000 ms**. Solicitud mala = código distinto de 200 o duración >1000 ms. Consumo de ventana = `malas / (N × 0,005) × 100`; burn rate = `fracción mala / 0,005`. Separadamente evaluamos un SLO de disponibilidad del servidor: **99,5 % de intentos físicos elegibles sin error inyectado**. Con 10 % de errores internos su burn rate es 20, aunque el SLO del cliente puede quedar intacto gracias a reintentos. Ambos son SLO de trabajo explícitos, no un presupuesto mensual restante. MTTD de alertamiento queda nulo salvo que se verifique una alerta real correlacionada; registrar separadamente inicio de primer fallo y observación operativa de sus logs.
+
+Aplicamos el mismo [criterio AIOps](../infra/aws/metrics-queries.md#condición-conjunta-de-aiops): tasa de errores superior a la línea base + 2σ **Y** latencia p99 superior al umbral del SLO, en el mismo servicio y periodo. Los fallos internos recuperados no son errores finales del cliente. Las muestras del cliente no superaron el umbral de latencia; no las presentamos como prueba de activación de una alarma por servicio ni calculamos un MTTD de alertamiento.
 
 ## Ejecución reproducible y planes
 

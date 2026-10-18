@@ -1,8 +1,10 @@
 # Solicitud sintética privada, temporal y única
 
-Esta preparación no lanza tareas automáticamente. Usar exclusivamente la cuenta personal `467866783326`, región `us-east-2`. Seguir el procedimiento de credenciales temporales del [README](README.md), sin modificar perfiles laborales ni imprimir credenciales. Todos los comandos de ejecución y retirada siguientes requieren aprobación previa. La ejecución autorizada del 18 de octubre y su retirada están documentadas en las [evidencias reales](../../docs/evidence/integrator/aws/README.md).
+Preparamos una solicitud privada con la cuenta personal `467866783326`, región `us-east-2`, sin lanzar tareas automáticamente. Utilizamos el procedimiento de credenciales temporales del [README](README.md), sin modificar perfiles laborales ni imprimir credenciales. Documentamos la ejecución del 18 de octubre y su retirada en las [evidencias reales](../../docs/evidence/integrator/aws/README.md). Cada nueva ejecución requiere revisar el plan y su alcance antes de aplicar cambios.
 
 ## Preparación y revisión
+
+Conservamos los comandos siguientes como referencia de la validación inicial con API `initial`. Tras los experimentos utilizamos el mapa completo de imágenes de la [guía AWS](README.md#pausar-y-reanudar-únicamente-los-microservicios), sin cambiar A/B `chaos-latency-v1`, data-service `chaos-errors-v2` ni Collector `traces-v2`, y con ambas inyecciones desactivadas. Los bloques históricos no incluyen ese mapa: no los ejecutamos directamente sobre el estado actual ni interpretamos sus resultados esperados como un plan nuevo. Antes de preparar o retirar la tarea necesitamos incorporar los overrides vigentes en un plan revisado.
 
 ```bash
 terraform -chdir=infra/aws fmt
@@ -53,7 +55,7 @@ La tarea usa 0,25 vCPU/512 MiB, IPv4 pública solo para salida y ninguna entrada
 
 El operador necesita `ecs:RegisterTaskDefinition`, `ecs:RunTask`, `ecs:DescribeTasks`, `ecs:ListTasks`, `ecs:StopTask`, `ecs:DeregisterTaskDefinition`, `ecs:DeleteTaskDefinitions`, lectura de logs y `iam:PassRole` limitado al rol de ejecución de A. Terraform necesita administrar el grupo y las tres reglas temporales. No se otorgan estos permisos al contenedor.
 
-El comando incluye además un GET de solo lectura del identificador recién creado y exige HTTP 200 con el mismo ID y estado `PENDING`. No repite el POST. La validación real inicial utilizó este GET mediante un override del comando; queda incorporado aquí para que las siguientes ejecuciones sean reproducibles.
+La tarea definida en Terraform incluye además un GET de solo lectura del identificador recién creado y exige HTTP 200 con el mismo ID y estado `PENDING`. No repite el POST. En la validación inicial ejecutamos ese GET mediante un override; posteriormente lo incorporamos a la preparación reproducible. Distinguimos esa comprobación de lectura de una prueba de persistencia tras reiniciar el servicio.
 
 ## Evidencia de las tres señales
 
@@ -65,13 +67,13 @@ aws logs filter-log-events --profile "$PROFILE" --region "$REGION" \
   --log-group-name /ecs/observability-integrator/otel --filter-pattern "\"$TRACE_ID\""
 ```
 
-Definir previamente `XRAY_TRACE_ID` con formato `1-xxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx` y `TRACE_ID` con sus 32 dígitos hexadecimales, ambos tomados del cliente. En X-Ray, inspeccionar segmentos y subsegmentos recursivamente: mismo `trace_id`, atribución `otel.resource.service.name` a A/B/data-service, relaciones `parent_id`/`id` y span PostgreSQL con `db.system.name=postgresql` y `db.operation.name=INSERT`. El padre externo del span servidor de A corresponde al ID enviado en `traceparent`; el cliente no exporta un span propio. No confundir nombres de segmentos con identidad del servicio.
+Definimos previamente `XRAY_TRACE_ID` con formato `1-xxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx` y `TRACE_ID` con sus 32 dígitos hexadecimales, ambos tomados del cliente. En X-Ray, inspeccionar segmentos y subsegmentos recursivamente: mismo `trace_id`, atribución `otel.resource.service.name` a A/B/data-service, relaciones `parent_id`/`id` y span PostgreSQL con `db.system.name=postgresql` y `db.operation.name=INSERT`. El padre externo del span servidor de A corresponde al ID enviado en `traceparent`; el cliente no exporta un span propio. No confundir nombres de segmentos con identidad del servicio.
 
-Buscar `credit.remote.success` (A), `credit.data.success` (B), `credit.persisted` (data-service), todos con el mismo trace ID y span IDs correspondientes. Verificar también métricas recientes de los tres servicios en CloudWatch OTel y HTTP en los destinos donde estén configuradas; no asumir que las métricas Prometheus locales aparecen automáticamente en OTLP. Guardar evidencia sanitizada en `docs/evidence/integrator/`, sin estados, planes binarios ni credenciales.
+Buscamos `credit.remote.success` (A), `credit.data.success` (B), `credit.persisted` (data-service), todos con el mismo trace ID y span IDs correspondientes. Verificar también métricas recientes de los tres servicios en CloudWatch OTel y HTTP en los destinos donde estén configuradas; no asumir que las métricas Prometheus locales aparecen automáticamente en OTLP. Guardar evidencia sanitizada en `docs/evidence/integrator/`, sin estados, planes binarios ni credenciales.
 
 ## Retirada completa de los recursos temporales
 
-Guardar evidencia y comprobar primero que la tarea esté STOPPED. Si quedó colgada, detener únicamente el ARN guardado en `TASK`, nunca servicios del laboratorio. No deshabilitar la preparación hasta que termine la prueba.
+Guardamos evidencia y comprobar primero que la tarea esté STOPPED. Si quedó colgada, detener únicamente el ARN guardado en `TASK`, nunca servicios del laboratorio. No deshabilitar la preparación hasta que termine la prueba.
 
 ```bash
 # Solo si fuera necesario y con aprobación:

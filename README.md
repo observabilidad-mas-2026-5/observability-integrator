@@ -45,9 +45,11 @@ docker compose -f compose.otel.yml down
 
 ## Documentación y pendientes
 
-Consultamos la guía [local](docs/GUIA_LOCAL.md) y la [operación AWS vigente](infra/aws/README.md), que reúne despliegue, imágenes, estado compartido, costos y pausa/reactivación de ECS. Retiramos las dos guías históricas de AWS/costos por describir la arquitectura anterior; conservamos sus [capturas históricas](docs/evidence/integrator/aws/legacy-aws-captures.md), sin presentarlas como evidencia del integrador. `scripts/validate_infra.ps1` conserva referencias a GCP, que no incluimos en este repositorio, y no forma parte de la validación local del Módulo A.
+Consultamos la guía [local e histórica](docs/GUIA_LOCAL.md) y la [operación AWS vigente](infra/aws/README.md), que reúne despliegue, imágenes, estado compartido, costos y pausa/reactivación de ECS. Retiramos las guías históricas de AWS/costos por describir la arquitectura anterior; conservamos sus [capturas](docs/evidence/integrator/aws/legacy-aws-captures.md), sin presentarlas como evidencia del integrador. `scripts/validate_infra.ps1` conserva referencias a GCP, que no incluimos en este repositorio, y no forma parte de la validación local del Módulo A.
 
 ## Validación del Módulo A
+
+Para AIOps mantenemos la condición conjunta de **tasa de errores superior a la línea base + 2σ Y latencia p99 superior al umbral del SLO**, en el mismo servicio y periodo. Distinguimos el SLO de trabajo por solicitud del percentil usado en la alerta. En el [criterio de medición](infra/aws/metrics-queries.md) explicamos denominadores, presupuesto de errores y burn rate; no atribuimos a los experimentos alertas o MTTD que no demostramos.
 
 Ejecutamos el [experimento de caos 1: latencia de 200 ms en Service B](docs/CHAOS_EXPERIMENT_1.md) en AWS y lo desactivamos tras la limpieza. En las [evidencias reales y locales](docs/evidence/integrator/aws/chaos/README.md) distinguimos ambos alcances; confirmamos 540 demoras en B y la recuperación, sin errores ni consumo del presupuesto del SLO de trabajo.
 

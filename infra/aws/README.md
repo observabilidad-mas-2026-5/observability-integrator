@@ -1,8 +1,10 @@
 # AWS temporal — Ohio
 
-Al 18 de octubre de 2026, desplegamos nuestra infraestructura en Ohio y validamos el recorrido completo con datos sintéticos y tres servicios activos. Consultamos las [evidencias reales](../../docs/evidence/integrator/aws/README.md). Retiramos los recursos temporales de prueba y conservamos RDS y los tres servicios activos, que generan costos.
+El 18 de octubre de 2026 desplegamos nuestra infraestructura en Ohio y validamos el recorrido completo con datos sintéticos. Documentamos las ejecuciones en las [evidencias reales](../../docs/evidence/integrator/aws/README.md). Al finalizar los experimentos retiramos los recursos temporales y comprobamos tres servicios saludables, con RDS activo. Estos recursos generan costos; este estado corresponde a la última verificación documentada, no a una consulta AWS nueva.
 
 ## Arquitectura
+
+Nuestra arquitectura es Service A → Service B → data-service → RDS. Tras los experimentos conservamos las etiquetas A/B `chaos-latency-v1`, data-service `chaos-errors-v2` y Collector `traces-v2`, con ambos mecanismos de caos desactivados. La sección de pausa/reactivación contiene el mapa completo vigente. Los ejemplos de publicación inicial y corrección del Collector documentan etapas históricas: no los ejecutamos directamente sobre el estado actual sin incorporar esos overrides y revisar un plan nuevo. La omisión del mapa puede proponer reversiones de imágenes; cualquier cambio adicional bloquea la operación.
 
 Tres servicios ECS Fargate separados: Service A → Service B → data-service → RDS PostgreSQL 16. Cada tarea usa 0,5 vCPU y 1 GiB, con aplicación y Collector; ECS añade el proxy de Service Connect. Total con una tarea por servicio: 1,5 vCPU, 3 GiB y tres IPv4 públicas. La aplicación reserva 128 unidades CPU y 256 MiB; el Collector otras 128 y 256 MiB, dejando capacidad para el proxy. Es una hipótesis de laboratorio que requiere medir memoria, CPU y reinicios al desplegar, no un dimensionamiento productivo.
 
@@ -18,7 +20,7 @@ La aplicación utiliza el usuario administrador de RDS para conservar la creaci�
 
 `collector-aws.Dockerfile` incluye la configuración AWS: trazas mediante `awsxray` a X-Ray, métricas a CloudWatch OTel y logs a CloudWatch Logs mediante OTLP HTTP y SigV4. Conservamos la imagen histórica `initial` con el exporter anterior; ya desplegamos y validamos `traces-v2`. Usa credenciales temporales del rol de tarea, nunca claves estáticas. Los grupos `/ecs/observability-integrator` y `/ecs/observability-integrator/otel` tienen retención de tres días; hay un stream OTLP por servicio. Las salidas JSON de aplicación también se capturan con `awslogs`, por lo que algunos eventos aparecen tanto en runtime como en OTLP: consultar una sola fuente para evitar conteos duplicados.
 
-Jaeger, Loki, Grafana y Prometheus del Compose local se conservan. No se despliegan sus contenedores en AWS: allí los destinos son X-Ray y CloudWatch, reduciendo tareas y almacenamiento. Las consultas de Grafana local no se trasladan automáticamente a CloudWatch. Las [consultas de preparación](metrics-queries.md) identifican solicitudes, errores y p99 por servicio; validamos métricas reales en las evidencias de caos, pero no damos por implementadas las alertas del equipo. No se habilitan Application Signals, Container Insights, enriquecimiento de métricas AWS, Flow Logs ni Security Hub implícitamente.
+Conservamos Jaeger, Loki, Grafana y Prometheus en Compose local; no desplegamos sus contenedores en AWS. Allí utilizamos X-Ray y CloudWatch para reducir tareas y almacenamiento. Las consultas de Grafana local no se trasladan automáticamente a CloudWatch. En las [consultas de preparación](metrics-queries.md) distinguimos las expresiones HTTP propuestas de los contadores y métricas de proceso comprobados durante el caos. Mantenemos el criterio conjunto de tasa de errores superior a la línea base + 2σ **Y** p99 superior al umbral del SLO, para el mismo servicio y periodo, sin afirmar que las alertas estén implementadas. Esta infraestructura no habilita implícitamente Application Signals, Container Insights, enriquecimiento de métricas AWS, Flow Logs ni Security Hub.
 
 ## Validación sin crear recursos
 
@@ -69,18 +71,18 @@ aws freetier get-account-plan-state --profile observability-integrator --region 
 terraform -chdir=infra/aws plan -input=false
 ```
 
-La API de Free Tier puede no estar disponible en la versión instalada del CLI o no aplicar al tipo de cuenta; en ese caso revisar Billing/Free Tier y Credits en la consola con permisos individuales. No asumir crédito ni elegibilidad. El resumen de esta preparación se guarda en [summary.json](../../docs/evidence/integrator/aws-preflight/summary.json), sin credenciales ni plan ficticio.
+La API de Free Tier puede no estar disponible en la versión instalada del CLI o no aplicar al tipo de cuenta; en ese caso revisamos Billing/Free Tier y Credits con permisos individuales. No asumimos crédito ni elegibilidad. Conservamos el [resumen histórico de preparación](../../docs/evidence/integrator/aws-preflight/summary.json), que registró un fallo de autenticación anterior al despliegue. Ese resultado no describe la sesión ni la infraestructura posteriores; tampoco demuestra créditos disponibles.
 
 ## Publicación posterior de imágenes y arranque
 
 Secuencia de referencia para un despliegue nuevo; las operaciones de publicación y aplicación siempre requieren aprobación. La cuenta actual ya está desplegada: no repetir esta inicialización ni desactivar los servicios existentes.
 
-1. Resolver autenticación, región, cuotas, créditos, presupuesto y custodia del estado. Revisar el plan real; no aplicar este laboratorio sobre un estado del proyecto anterior.
+1. Resolvemos autenticación, región, cuotas, créditos, presupuesto y custodia del estado. Revisar el plan real; no aplicar este laboratorio sobre un estado del proyecto anterior.
 2. Primera aplicación de Terraform con `deploy_services=false`: crea infraestructura y repositorios, pero los tres servicios ECS tienen cero tareas. **RDS y Secrets Manager ya generan cargos**, aunque no haya tareas. Service Connect queda registrado antes de iniciar clientes.
-3. Obtener las URLs de los dos repositorios mediante `terraform output -json ecr_urls`. Construir dos imágenes `linux/amd64`: API con `infra/images/api-aws.Dockerfile` y Collector con `infra/images/collector-aws.Dockerfile`.
-4. Autenticar Docker con `aws ecr get-login-password --profile observability-integrator --region us-east-2` canalizado directamente a `docker login --password-stdin`; nunca imprimir ni guardar el token. Etiquetar y publicar ambas imágenes con la misma etiqueta de versión inmutable y revisar el escaneo. No reutilizar una etiqueta existente.
-5. Revisar un nuevo plan con el `image_tag` publicado y `deploy_services=true`, luego obtener aprobación antes de activar las tres tareas. Empezar después de registrar todos los endpoints de Service Connect evita clientes con descubrimiento incompleto. Ante futuros endpoints nuevos se requiere renovar los clientes.
-6. Solo si se aprueba, configurar el `/32` del operador para solicitudes HTTP sintéticas al puerto 8000 de Service A. No enviar credenciales ni información personal por ese HTTP. No hay hostname estable ni TLS de entrada: producción requiere otro diseño de acceso aprobado.
+3. Obtenemos las URLs de los dos repositorios mediante `terraform output -json ecr_urls`. Construir dos imágenes `linux/amd64`: API con `infra/images/api-aws.Dockerfile` y Collector con `infra/images/collector-aws.Dockerfile`.
+4. Autenticamos Docker con `aws ecr get-login-password --profile observability-integrator --region us-east-2` canalizado directamente a `docker login --password-stdin`; nunca imprimir ni guardar el token. Etiquetar y publicar ambas imágenes con la misma etiqueta de versión inmutable y revisar el escaneo. No reutilizar una etiqueta existente.
+5. Revisamos un nuevo plan con el `image_tag` publicado y `deploy_services=true`, luego obtener aprobación antes de activar las tres tareas. Empezar después de registrar todos los endpoints de Service Connect evita clientes con descubrimiento incompleto. Ante futuros endpoints nuevos se requiere renovar los clientes.
+6. Para las pruebas actuales utilizamos la tarea privada temporal, sin abrir entrada pública. Conservamos `allowed_cidr` sin habilitar acceso HTTP externo. Un eventual `/32` del operador sería una alternativa distinta que requeriría revisión de seguridad; no forma parte de las ejecuciones documentadas. Producción requiere un diseño de acceso autenticado y cifrado.
 7. Comprobar CRUD, TLS RDS, persistencia, trazas de tres servicios y SQL, logs correlacionados, métricas L7 y métricas OTLP. Los scripts locales no validan automáticamente AWS.
 
 El operador de Terraform necesita permisos de creación sobre los tipos del inventario y `iam:PassRole` limitado a los roles ECS del integrador. La primera utilización de ECS puede requerir `iam:CreateServiceLinkedRole` para su rol de servicio. El publicador de imágenes necesita permisos de push solo en los dos repositorios y `ecr:GetAuthorizationToken`. Cada integrante debe recibir acceso individual por Identity Center/roles temporales, consultas de logs, métricas y trazas, y permisos acotados para sus alertas y tareas de seguridad; no claves compartidas ni acceso al valor del secreto de BD.
@@ -91,7 +93,7 @@ La configuración corregida usa `awsxray` de Contrib 0.139.0 para convertir span
 
 `collector_image_tag` permite versionar solo el Collector. Su valor predeterminado `null` hereda `image_tag`, conservando el comportamiento anterior; `image_tag=initial` y `collector_image_tag=traces-v2` mantienen la API intacta. `deploy_services` sigue siendo `false` por defecto: omitirlo en un plan posterior puede proponer detener los servicios. Mantener `deploy_services=true` mientras deban permanecer activos.
 
-Secuencia desde Git Bash, en la raíz del repositorio; publicación y despliegue requieren aprobación independiente y **no forman parte de esta preparación**:
+Conservamos la siguiente secuencia de Git Bash como referencia de la corrección ya desplegada. Las operaciones de publicación y despliegue requieren una revisión independiente; no repetimos un push de etiquetas inmutables ni aplicamos sus planes históricos sobre las imágenes actuales.
 
 ```bash
 export AWS_REGION=us-east-2
@@ -129,13 +131,15 @@ terraform -chdir=infra/aws plan -input=false -var=deploy_services=true \
 
 Las credenciales ficticias `LOCAL_VALIDATION_ONLY` solo permiten validar las extensiones SigV4 dentro del contenedor sin red; no autentican contra AWS y nunca deben configurarse en ECS. La redirección local de metadatos evita esperas de autodetección de EC2 durante esa validación; tampoco debe trasladarse a ECS.
 
-No publicar planes binarios ni salidas completas de estado. El plan puede generarse antes de publicar la imagen, pero no comprueba que esa etiqueta exista en ECR. Antes de cualquier aplicación, confirmar imagen y arquitectura `linux/amd64`, escaneo y plan actualizado. Revisar únicamente tres reemplazos de definiciones de tarea y tres actualizaciones de servicios; no aprobar cambios de red, IAM, RDS ni destino regional. ECS debe conservar `desired_count=1` y la API `initial`.
+No publicamos planes binarios ni salidas completas de estado. Un plan puede generarse antes de publicar una imagen, pero no comprueba su existencia en ECR: verificamos la etiqueta, arquitectura `linux/amd64` y escaneo por separado. En la corrección histórica del Collector revisamos tres reemplazos de definiciones y tres actualizaciones de servicios, con `desired_count=1` y API `initial`. Ese alcance no es el esperado para un plan actual con las imágenes de caos: conservamos los overrides vigentes y detenemos cualquier cambio de red, IAM, RDS, destino regional o imágenes ajenas.
 
-Los servicios actuales usan mínimo saludable 0 % y máximo 100 %: renovar la definición detiene la tarea anterior antes de iniciar la nueva, con interrupción temporal y posibles errores 503 entre dependencias. No hay garantía de cero downtime con una tarea por servicio. No se modifican esos porcentajes en esta corrección. El plan también muestra normalización de listas vacías y omisión de `hostPort`, cuyo valor predeterminado en `awsvpc` es el puerto del contenedor; no cambia los puertos efectivos.
+Los servicios actuales usan mínimo saludable 0 % y máximo 100 %: renovar la definición detiene la tarea anterior antes de iniciar la nueva, con interrupción temporal y posibles errores 503 entre dependencias. No hay garantía de cero downtime con una tarea por servicio. Conservamos esos porcentajes como limitación del despliegue. El plan también muestra normalización de listas vacías y omisión de `hostPort`, cuyo valor predeterminado en `awsvpc` es el puerto del contenedor; no cambia los puertos efectivos.
 
 Después de un despliegue aprobado: esperar los tres servicios estables y aplicaciones saludables; confirmar digest del Collector y ausencia de errores 400 o `AccessDenied`. Generar tráfico sintético mediante un acceso privado autorizado, sin abrir Security Groups, y consultar X-Ray para comprobar A → B → data-service → PostgreSQL, un mismo trace ID y relaciones padre-hijo. Verificar además métricas de los tres servicios en CloudWatch y logs correlacionados en `/ecs/observability-integrator/otel`. Los spans ya descartados no se recuperan. Guardar evidencias nuevas sin datos sensibles en `docs/evidence/integrator/`.
 
 ## Publicación y activación posterior del experimento de latencia
+
+El mapa de A/B mostrado en esta sección corresponde al primer experimento, cuando data-service heredaba `initial`. No sustituye el mapa completo vigente de pausa/reactivación. El controlador histórico de latencia rechaza el cambio adicional de data-service; antes de repetir necesitamos adaptar sus overrides. No modificamos ese código en esta revisión documental.
 
 **Procedimiento reproducible; ejecución real completada y limpiada el 18 de octubre.** Las [instrucciones completas](../../docs/CHAOS_EXPERIMENT_1.md) y el [informe AWS](../../docs/evidence/integrator/aws/chaos/chaos-20261018T141822Z/README.md) definen tráfico, resultados, SLO y recuperación. A/B permanecen en `chaos-latency-v1` pero con `chaos_expires_at=0`, sin infraestructura temporal. Cada nueva corrida requiere aprobación; no repetir publicaciones de imágenes ya verificadas. Retiramos las dos guías históricas por describir otra arquitectura. Conservamos sus [siete capturas](../../docs/evidence/integrator/aws/legacy-aws-captures.md) como referencia; utilizamos este README como fuente operativa vigente.
 
@@ -189,7 +193,7 @@ Validación local reproducible: `terraform -chdir=infra/aws fmt -check -recursiv
 
 ### Experimento 2: errores en data-service
 
-Consultar el [procedimiento y aislamiento](../../docs/CHAOS_EXPERIMENT_2.md). `data_error_expires_at=0` desactiva el mecanismo; un valor futuro exige el UUID sintético `data_error_application_id` y habilita solo data-service. El cliente marca únicamente la fase de inyección. `chaos-errors-v2` cuenta intentos físicos, incluidos los reintentos de Service Connect: pueden existir errores 503 internos con respuesta final 200. No modificamos los gates de A/B ni atribuimos al cliente el porcentaje de errores del servidor.
+Consultamos el [procedimiento y aislamiento](../../docs/CHAOS_EXPERIMENT_2.md). `data_error_expires_at=0` desactiva el mecanismo; un valor futuro exige el UUID sintético `data_error_application_id` y habilita solo data-service. El cliente marca únicamente la fase de inyección. `chaos-errors-v2` cuenta intentos físicos, incluidos los reintentos de Service Connect: pueden existir errores 503 internos con respuesta final 200. No modificamos los gates de A/B ni atribuimos al cliente el porcentaje de errores del servidor.
 
 Las operaciones posteriores deben conservar las etiquetas actuales mediante el mapa completo indicado abajo. Las etiquetas históricas `initial` y `chaos-errors-v1` no se sobrescriben. Renovar data-service puede provocar el reemplazo automático de B por su healthcheck dependiente; esperar siempre a que los tres servicios se estabilicen antes de medir.
 
@@ -217,7 +221,7 @@ terraform -chdir=infra/aws plan -input=false \
   -out=.terraform/resume-services-reviewed.tfplan
 ```
 
-Revisar que el plan proponga exclusivamente **0 to add, 3 to change, 0 to destroy**, con `desired_count: 0 → 1` para A, B y data-service, manteniendo las mismas imágenes y definiciones. Si hay cualquier otro cambio, detenerse. Solo tras revisar y aprobar ese plan:
+Revisamos que el plan proponga exclusivamente **0 to add, 3 to change, 0 to destroy**, con `desired_count: 0 → 1` para A, B y data-service, manteniendo las mismas imágenes y definiciones. Si hay cualquier otro cambio, detenerse. Solo tras revisar y aprobar ese plan:
 
 ```bash
 terraform -chdir=infra/aws apply -input=false .terraform/resume-services-reviewed.tfplan
@@ -226,12 +230,20 @@ aws ecs wait services-stable --profile observability-integrator --region us-east
   observability-integrator-service-b observability-integrator-data-service
 ```
 
-Confirmar después una tarea RUNNING por servicio, aplicaciones HEALTHY y telemetría reciente. El arranque no ejecuta la prueba sintética ni abre acceso HTTP público. Cerrar la terminal al terminar para descartar las credenciales temporales. Para volver a pausar, generar otro plan con las mismas variables e imágenes, cambiando únicamente `deploy_services=false`, y exigir exactamente tres cambios `1 → 0` antes de aplicarlo. No publicar los planes binarios.
+Confirmamos después una tarea RUNNING por servicio, aplicaciones HEALTHY y telemetría reciente. El arranque no ejecuta la prueba sintética ni abre acceso HTTP público. Cerrar la terminal al terminar para descartar las credenciales temporales. Para volver a pausar, generar otro plan con las mismas variables e imágenes, cambiando únicamente `deploy_services=false`, y exigir exactamente tres cambios `1 → 0` antes de aplicarlo. No publicar los planes binarios.
 
-## Costos y retirada
+## Riesgos, costos y retirada
+
+### Riesgos de seguridad conocidos
+
+En la evaluación previa de `api:initial` identificamos tres hallazgos HIGH y una limitación de escaneo del Collector. Conservamos esos riesgos: no interpretamos el escaneo fallido como ausencia de vulnerabilidades, ni consideramos las nuevas etiquetas de caos una remediación de dependencias. Esta revisión no realiza un escaneo nuevo ni añade CVE o versiones sin un informe verificable. El uso temporal de datos sintéticos y el acceso privado reducen exposición, pero no eliminan los hallazgos. Antes de otro uso revisamos los resultados ECR disponibles y el alcance de las correcciones necesarias.
+
+Los reintentos pueden ocultar errores internos al cliente. Además, la política de despliegue y el healthcheck dependiente de B pueden producir una interrupción al renovar data-service. Mantenemos esas limitaciones, el usuario SQL administrador y la falta de TLS entre proxies como aspectos pendientes, sin atribuirles una corrección no implementada.
+
+### Costos y retirada
 
 El inventario estático prevé 55 recursos Terraform con la API cerrada; 56 si se configura el `/32`. No es un plan contra AWS. Incluye un RDS Single-AZ `db.t4g.micro`, 20 GiB gp3, dos repositorios, seis roles, siete políticas inline, tres servicios y tres definiciones de tarea. RDS administra además un secreto y ECS crea objetos de descubrimiento/roles vinculados al servicio que no son recursos independientes en ese conteo.
 
-Los cargos potenciales son Fargate, tres IPv4 cuando corran las tareas, RDS/almacenamiento, secreto administrado, ECR, CloudWatch (ingesta, consultas, métricas, logs y métricas L7), X-Ray y transferencia. No se incluye presupuesto gratuito ni crédito como descuento garantizado. Consultar la calculadora para Ohio y fijar duración aprobada antes del apply; AWS Budgets no es un corte automático del gasto. No se activan servicios de seguridad de pago ni NAT/ALB.
+Los cargos potenciales son Fargate, tres IPv4 cuando corran las tareas, RDS/almacenamiento, secreto administrado, ECR, CloudWatch (ingesta, consultas, métricas, logs y métricas L7), X-Ray y transferencia. No consideramos un presupuesto gratuito ni créditos como descuentos garantizados. Consultar la calculadora para Ohio y fijar duración aprobada antes del apply; AWS Budgets no es un corte automático del gasto. No se activan servicios de seguridad de pago ni NAT/ALB.
 
-Programar pruebas en una ventana corta, exportar evidencias sin secretos y coordinar la retirada con nuestro equipo. Cero tareas solo detiene el cómputo ECS; no elimina RDS ni almacenamiento. Detener RDS tampoco elimina su almacenamiento y no es una estrategia permanente. La configuración actual de laboratorio tiene backups deshabilitados, sin protección de borrado y sin snapshot final: aprobar esa pérdida de datos antes de aplicar. ECR tiene `force_delete=false`, por lo que habrá que retirar explícitamente las imágenes antes de eliminar sus repositorios. Revisar también secretos, logs retenidos, imágenes, descubrimiento y roles después de una futura eliminación autorizada. Los procedimientos de esta guía no ejecutan operaciones por sí solos; documentamos las creaciones y retiradas autorizadas en las evidencias AWS.
+Programamos las pruebas en una ventana corta, exportamos evidencias sin secretos y coordinamos la retirada como equipo. Cero tareas solo detiene el cómputo ECS; no elimina RDS ni almacenamiento. Detener RDS tampoco elimina su almacenamiento y no es una estrategia permanente. En nuestro laboratorio los backups están deshabilitados, sin protección de borrado ni snapshot final: una futura eliminación requiere aceptar expresamente la pérdida de datos. ECR tiene `force_delete=false`, por lo que debemos retirar las imágenes antes de eliminar sus repositorios. Tras una retirada autorizada revisamos también secretos, logs retenidos, imágenes, descubrimiento y roles. Los procedimientos de esta guía no ejecutan operaciones por sí solos; documentamos las creaciones y retiradas realizadas en las evidencias AWS.

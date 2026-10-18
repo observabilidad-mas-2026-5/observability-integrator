@@ -28,7 +28,9 @@ SLO de trabajo end-to-end: **99,5 % de GET finales exitosos y ≤1000 ms**. Las 
 
 SLO de trabajo separado para el servidor durante la inyección: **99,5 % de intentos físicos elegibles sin fallo inyectado**. Con 50/500 fallidos, presupuesto permitido 2,5, consumo de ventana **2000 %**, burn rate **20×**. No mezclamos ese denominador con las 450 operaciones lógicas del cliente. [Cálculo y alcance](server-error-slo.json).
 
-Primer fallo real: **15:41:10,493 UTC**; comprobación operativa en logs: **15:41:42,681 UTC**, demora 32,188 s. **MTTD de alertamiento no medido**: [no se verificó una alerta real correlacionada](alerts.json). El polling del controlador no es una alerta del equipo de AIOps.
+Conservamos el criterio AIOps de tasa de errores superior a la línea base + 2σ **Y** p99 superior al umbral del SLO, para el mismo servicio y periodo. No mezclamos el 10 % interno con el p99 del cliente para declarar una detección. Los percentiles finales quedaron bajo 1000 ms; no demostramos la condición conjunta ni la entrega de una alerta por servicio.
+
+Observamos el primer fallo real a las **15:41:10,493 UTC** y lo comprobamos operativamente en logs a las **15:41:42,681 UTC**, con una demora de 32,188 s. Mantenemos el **MTTD de alertamiento como no medido**: [no verificamos una alerta real correlacionada](alerts.json). El sondeo del controlador no es una notificación del sistema AIOps.
 
 ## Despliegue y limpieza
 
@@ -38,7 +40,7 @@ El [plan de activación](activation-plan-summary.json) solo creó cinco recursos
 
 La política de despliegue actual interrumpe brevemente data-service al renovar su tarea. El healthcheck dependiente de B puede provocar su reemplazo automático por ECS; ocurrió antes de medir y esperamos a los tres servicios HEALTHY. No es un cambio Terraform de B ni un efecto de la inyección sobre healthchecks. Documentamos esta limitación para mejorar liveness/readiness por separado.
 
-La [limpieza terminó a las 15:56:18 UTC](cleanup.json): gate retirado (`data_error_expires_at=0`), cliente detenido, cinco recursos temporales eliminados, definición temporal enviada a eliminación y stream temporal retirado después de guardar las evidencias. El plan final devolvió **No changes**. Los [tres servicios quedaron HEALTHY](final-services.json), A/B con `chaos-latency-v1`, data-service con `chaos-errors-v2` y los tres Collectors con `traces-v2`, [sin errores de exportación detectados](final-collector-errors.json). La [consulta AWS final](final-aws-verification.json) confirma tres tareas activas, ninguna definición temporal activa y ninguna regla de entrada en Service A. Conservamos RDS y sus datos; no ejecutamos un destroy general ni commit/push durante el experimento.
+La [limpieza terminó a las 15:56:18 UTC](cleanup.json): gate retirado (`data_error_expires_at=0`), cliente detenido, cinco recursos temporales eliminados, definición temporal enviada a eliminación y stream temporal retirado después de guardar las evidencias. El plan final devolvió **No changes**. Los [tres servicios quedaron HEALTHY](final-services.json), A/B con `chaos-latency-v1`, data-service con `chaos-errors-v2` y los tres Collectors con `traces-v2`, [sin errores de exportación detectados](final-collector-errors.json). La [consulta AWS final](final-aws-verification.json) confirma tres tareas activas, ninguna definición temporal activa y ninguna regla de entrada en Service A. Conservamos RDS y sus datos; no ejecutamos un destroy general.
 
 ## Intento anterior conservado
 

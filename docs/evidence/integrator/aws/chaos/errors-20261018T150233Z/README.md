@@ -8,4 +8,4 @@ Conservamos esta ejecución como diagnóstico, pero **no la presentamos como val
 - [Limitación de despliegue](deployment-limitation.json): el healthcheck dependiente de B provocó su reemplazo automático durante el recambio de data-service.
 - [Limpieza comprobada](cleanup.json), [servicios finales](final-services.json): tres aplicaciones saludables, gates retirados, cero recursos temporales y plan sin cambios. Sin escrituras de datos.
 
-Corregimos el mecanismo en una etiqueta independiente `chaos-errors-v2`, seleccionando uno de cada diez intentos físicos, incluidos los reintentos. Conservamos las evidencias de la repetición en otra carpeta, sin sobrescribir esta ejecución.
+Corregimos el mecanismo en una etiqueta independiente `chaos-errors-v2`, seleccionando uno de cada diez intentos físicos, incluidos los reintentos. Conservamos los resultados corregidos en [una ejecución separada](../errors-20261018T153105Z/README.md), sin sobrescribir ni ocultar este intento fallido.
