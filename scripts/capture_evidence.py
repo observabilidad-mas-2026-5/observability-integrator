@@ -2,7 +2,7 @@
 import subprocess, socket, urllib.request, time, json, os, base64, struct
 from pathlib import Path
 from urllib.parse import urlparse, quote, urlencode
-root=Path.cwd();out=root/'docs/evidence'
+root=Path.cwd();out=root/'docs/evidence/integrator'
 edge=Path('C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe')
 assert edge.exists(),'Edge not found'
 sock=socket.socket();sock.bind(('127.0.0.1',0));port=sock.getsockname()[1];sock.close()
@@ -48,7 +48,7 @@ try:
     auth=base64.b64encode(b'lab:local-lab-only').decode()
     call('Network.setExtraHTTPHeaders',{'headers':{'Authorization':'Basic '+auth}})
     trace=json.loads((out/'validation.json').read_text(encoding='utf-8'))['trace_id']
-    panes={'logs':{'datasource':'loki','queries':[{'refId':'A','expr':'{service_name=~"service-a|service-b"} | trace_id="'+trace+'"','queryType':'range'}],'range':{'from':'now-1h','to':'now'}}}
+    panes={'logs':{'datasource':'loki','queries':[{'refId':'A','expr':'{service_name=~"service-a|service-b|data-service"} | trace_id="'+trace+'"','queryType':'range'}],'range':{'from':'now-1h','to':'now'}}}
     pages=[('jaeger-trace.png','http://127.0.0.1:26686/trace/'+trace),('grafana-dashboard.png','http://127.0.0.1:23000/d/credit-lab?orgId=1&from=now-30m&to=now'),('grafana-logs.png','http://127.0.0.1:23000/explore?'+urlencode({'schemaVersion':1,'panes':json.dumps(panes),'orgId':1}))]
     records=[]
     for filename,url in pages:

@@ -2,7 +2,7 @@ global: {scrape_interval: 5s}
 scrape_configs:
   - job_name: apps
     static_configs:
-      - targets: [service-a:8000, service-b:8001]
+      - targets: [service-a:8000, service-b:8001, data-service:8002]
   - job_name: otel-apps
     static_configs:
       - targets: [collector:8889]

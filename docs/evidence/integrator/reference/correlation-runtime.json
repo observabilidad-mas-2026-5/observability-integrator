@@ -1,0 +1,276 @@
+{
+  "trace_id": "ff49725ffe1d4584b007b85a492fad59",
+  "grafana_runtime_templates_preserved": true,
+  "log_to_trace_template": {
+    "datasourceUid": "jaeger",
+    "matcherRegex": "trace_id",
+    "matcherType": "label",
+    "name": "trace_id",
+    "url": "${__value.raw}"
+  },
+  "trace_to_logs_config": {
+    "customQuery": true,
+    "datasourceUid": "loki",
+    "query": "{service_name=~\"service-a.*|service-b.*|data-service.*\"} | trace_id=\"${__span.traceId}\"",
+    "spanEndTimeShift": "1m",
+    "spanStartTimeShift": "-1m"
+  },
+  "resolved_logql": "{service_name=~\"service-a.*|service-b.*|data-service.*\"} | trace_id=\"ff49725ffe1d4584b007b85a492fad59\"",
+  "services_with_logs": [
+    "data-service",
+    "service-a",
+    "service-b"
+  ],
+  "logs": {
+    "status": "success",
+    "data": {
+      "resultType": "streams",
+      "result": [
+        {
+          "stream": {
+            "code_file_path": "/app/app/data_service.py",
+            "code_function_name": "create",
+            "code_line_number": "57",
+            "deployment_environment": "lab",
+            "detected_level": "info",
+            "flags": "1",
+            "lab_name": "credit-lab",
+            "observed_timestamp": "1792297252103783580",
+            "scope_name": "credit-lab",
+            "service_name": "data-service",
+            "severity_number": "9",
+            "severity_text": "INFO",
+            "span_id": "23f2099fc3293129",
+            "telemetry_sdk_language": "python",
+            "telemetry_sdk_name": "opentelemetry",
+            "telemetry_sdk_version": "1.38.0",
+            "trace_id": "ff49725ffe1d4584b007b85a492fad59"
+          },
+          "values": [
+            [
+              "1792297252103440384",
+              "credit.persisted"
+            ]
+          ]
+        },
+        {
+          "stream": {
+            "code_file_path": "/app/app/service.py",
+            "code_function_name": "remote",
+            "code_line_number": "17",
+            "deployment_environment": "lab",
+            "detected_level": "info",
+            "flags": "1",
+            "lab_name": "credit-lab",
+            "observed_timestamp": "1792297252112162127",
+            "scope_name": "credit-lab",
+            "service_name": "service-a",
+            "severity_number": "9",
+            "severity_text": "INFO",
+            "span_id": "699809d6e1b96929",
+            "telemetry_sdk_language": "python",
+            "telemetry_sdk_name": "opentelemetry",
+            "telemetry_sdk_version": "1.38.0",
+            "trace_id": "ff49725ffe1d4584b007b85a492fad59"
+          },
+          "values": [
+            [
+              "1792297252111727872",
+              "credit.remote.success"
+            ]
+          ]
+        },
+        {
+          "stream": {
+            "code_file_path": "/app/app/storage.py",
+            "code_function_name": "remote",
+            "code_line_number": "38",
+            "deployment_environment": "lab",
+            "detected_level": "info",
+            "flags": "1",
+            "lab_name": "credit-lab",
+            "observed_timestamp": "1792297252107582808",
+            "scope_name": "credit-lab",
+            "service_name": "service-b",
+            "severity_number": "9",
+            "severity_text": "INFO",
+            "span_id": "104a9d20f23bf7e5",
+            "telemetry_sdk_language": "python",
+            "telemetry_sdk_name": "opentelemetry",
+            "telemetry_sdk_version": "1.38.0",
+            "trace_id": "ff49725ffe1d4584b007b85a492fad59"
+          },
+          "values": [
+            [
+              "1792297252107349760",
+              "credit.data.success"
+            ]
+          ]
+        }
+      ],
+      "stats": {
+        "summary": {
+          "bytesProcessedPerSecond": 261034,
+          "linesProcessedPerSecond": 1860,
+          "totalBytesProcessed": 6034,
+          "totalLinesProcessed": 43,
+          "execTime": 0.023116,
+          "queueTime": 0.001864,
+          "subqueries": 0,
+          "totalEntriesReturned": 3,
+          "splits": 0,
+          "shards": 1,
+          "totalPostFilterLines": 3,
+          "totalStructuredMetadataBytesProcessed": 5160
+        },
+        "querier": {
+          "store": {
+            "totalChunksRef": 0,
+            "totalChunksDownloaded": 0,
+            "chunksDownloadTime": 0,
+            "queryReferencedStructuredMetadata": false,
+            "chunk": {
+              "headChunkBytes": 0,
+              "headChunkLines": 0,
+              "decompressedBytes": 0,
+              "decompressedLines": 0,
+              "compressedBytes": 0,
+              "totalDuplicates": 0,
+              "postFilterLines": 0,
+              "headChunkStructuredMetadataBytes": 0,
+              "decompressedStructuredMetadataBytes": 0
+            },
+            "chunkRefsFetchTime": 0,
+            "congestionControlLatency": 0,
+            "pipelineWrapperFilteredLines": 0
+          }
+        },
+        "ingester": {
+          "totalReached": 1,
+          "totalChunksMatched": 3,
+          "totalBatches": 2,
+          "totalLinesSent": 3,
+          "store": {
+            "totalChunksRef": 0,
+            "totalChunksDownloaded": 0,
+            "chunksDownloadTime": 0,
+            "queryReferencedStructuredMetadata": true,
+            "chunk": {
+              "headChunkBytes": 6034,
+              "headChunkLines": 43,
+              "decompressedBytes": 0,
+              "decompressedLines": 0,
+              "compressedBytes": 0,
+              "totalDuplicates": 0,
+              "postFilterLines": 3,
+              "headChunkStructuredMetadataBytes": 5160,
+              "decompressedStructuredMetadataBytes": 0
+            },
+            "chunkRefsFetchTime": 706689,
+            "congestionControlLatency": 0,
+            "pipelineWrapperFilteredLines": 0
+          }
+        },
+        "cache": {
+          "chunk": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "index": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "result": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "statsResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "volumeResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "seriesResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "labelResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "instantMetricResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          }
+        },
+        "index": {
+          "totalChunks": 0,
+          "postFilterChunks": 0,
+          "shardsDuration": 0,
+          "usedBloomFilters": false
+        }
+      }
+    }
+  },
+  "api_unchanged_matches_running_image": true,
+  "api_sha256": {
+    "data_service.py": "ea3f4dc4d9574fffcd5ad6eac4a1b7feefbfbe1f39a1e549a5cd2422c787d95e",
+    "main.py": "9dbc93731c72b0e9dc59cd09e14bbbe369786a2629b1a31fb3cf4975474539b8",
+    "models.py": "28f44248d8ea2f5fc08ffb203841802e62dddd35b3196e1631dd6fa5c961dec7",
+    "service.py": "855955205bb3795ffacfe8c4e60bc016ba79814ec205e73ee70533ff649ebe4a",
+    "storage.py": "f06a2669cc88c2babd404cc43011ab23e8034cc3baeb4618e01cc19069776ffe",
+    "telemetry.py": "b7fd552a03cdf1a3d710a44762666f8f256a97e1e6c0019cef7361ec2467fbf9",
+    "__init__.py": "aac06cbc091248f3de5bad00cb98155df2bea518018e7459e99bc4c3f6fe3afb"
+  },
+  "scope": "Grafana provisioning and backend correlation tested; visual navigation assessed separately"
+}

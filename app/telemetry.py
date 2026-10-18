@@ -5,8 +5,8 @@ import os
 from datetime import datetime, timezone
 from opentelemetry import trace, metrics
 from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.trace import TracerProvider, ReadableSpan, Event
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, SpanExporter
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -26,6 +26,41 @@ logger.setLevel(logging.INFO)
 logger.propagate = False
 providers = []
 
+
+class SafeSpanExporter(SpanExporter):
+    def __init__(self, exporter):
+        self.exporter = exporter
+
+    def export(self, spans):
+        sanitized = []
+        for span in spans:
+            attributes = dict(span.attributes or {})
+            if attributes.get("db.system") == "postgresql":
+                statement = attributes.get("db.statement", "")
+                operation = statement.split(None, 1)[0].upper() if statement else ""
+                attributes = {key: value for key, value in attributes.items()
+                              if key in {"db.system", "db.name", "net.peer.name", "net.peer.port"}}
+                attributes["db.system.name"] = "postgresql"
+                if operation in {"SELECT", "INSERT", "UPDATE", "DELETE", "CREATE"}:
+                    attributes["db.operation.name"] = operation
+                if "db.name" in attributes:
+                    attributes["db.namespace"] = attributes["db.name"]
+            events = [Event(event.name, {key: value for key, value in event.attributes.items()
+                                        if key not in {"exception.message", "exception.stacktrace"}},
+                            event.timestamp) for event in span.events]
+            sanitized.append(ReadableSpan(
+                name=span.name, context=span.context, parent=span.parent, resource=span.resource,
+                attributes=attributes, events=events, links=span.links, kind=span.kind,
+                status=trace.Status(span.status.status_code), start_time=span.start_time,
+                end_time=span.end_time, instrumentation_scope=span.instrumentation_scope))
+        return self.exporter.export(sanitized)
+
+    def shutdown(self):
+        self.exporter.shutdown()
+
+    def force_flush(self, timeout_millis=30000):
+        return self.exporter.force_flush(timeout_millis)
+
 class JSONFormatter(logging.Formatter):
     def format(self, record):
         ctx = trace.get_current_span().get_span_context()
@@ -44,7 +79,7 @@ def configure(app, engine=None):
     resource = Resource.create({"service.name": SERVICE, "deployment.environment": "lab"})
     base = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://collector:4318").rstrip("/")
     tp = TracerProvider(resource=resource)
-    tp.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=base+"/v1/traces")))
+    tp.add_span_processor(BatchSpanProcessor(SafeSpanExporter(OTLPSpanExporter(endpoint=base+"/v1/traces"))))
     trace.set_tracer_provider(tp)
     mp = MeterProvider(resource=resource, metric_readers=[PeriodicExportingMetricReader(
         OTLPMetricExporter(endpoint=base+"/v1/metrics"), export_interval_millis=5000)])

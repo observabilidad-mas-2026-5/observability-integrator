@@ -19,7 +19,7 @@ datasources:
         spanStartTimeShift: '-1m'
         spanEndTimeShift: '1m'
         customQuery: true
-        query: '{service_name=~"service-a.*|service-b.*"} | trace_id="$${__span.traceId}"'
+        query: '{service_name=~"service-a.*|service-b.*|data-service.*"} | trace_id="$${__span.traceId}"'
   - name: Loki
     uid: loki
     type: loki

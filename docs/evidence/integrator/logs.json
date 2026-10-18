@@ -1,0 +1,241 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "streams",
+    "result": [
+      {
+        "stream": {
+          "code_file_path": "/app/app/data_service.py",
+          "code_function_name": "create",
+          "code_line_number": "57",
+          "deployment_environment": "lab",
+          "detected_level": "info",
+          "flags": "1",
+          "lab_name": "credit-lab",
+          "observed_timestamp": "1792297252103783580",
+          "scope_name": "credit-lab",
+          "service_name": "data-service",
+          "severity_number": "9",
+          "severity_text": "INFO",
+          "span_id": "23f2099fc3293129",
+          "telemetry_sdk_language": "python",
+          "telemetry_sdk_name": "opentelemetry",
+          "telemetry_sdk_version": "1.38.0",
+          "trace_id": "ff49725ffe1d4584b007b85a492fad59"
+        },
+        "values": [
+          [
+            "1792297252103440384",
+            "credit.persisted"
+          ]
+        ]
+      },
+      {
+        "stream": {
+          "code_file_path": "/app/app/service.py",
+          "code_function_name": "remote",
+          "code_line_number": "17",
+          "deployment_environment": "lab",
+          "detected_level": "info",
+          "flags": "1",
+          "lab_name": "credit-lab",
+          "observed_timestamp": "1792297252112162127",
+          "scope_name": "credit-lab",
+          "service_name": "service-a",
+          "severity_number": "9",
+          "severity_text": "INFO",
+          "span_id": "699809d6e1b96929",
+          "telemetry_sdk_language": "python",
+          "telemetry_sdk_name": "opentelemetry",
+          "telemetry_sdk_version": "1.38.0",
+          "trace_id": "ff49725ffe1d4584b007b85a492fad59"
+        },
+        "values": [
+          [
+            "1792297252111727872",
+            "credit.remote.success"
+          ]
+        ]
+      },
+      {
+        "stream": {
+          "code_file_path": "/app/app/storage.py",
+          "code_function_name": "remote",
+          "code_line_number": "38",
+          "deployment_environment": "lab",
+          "detected_level": "info",
+          "flags": "1",
+          "lab_name": "credit-lab",
+          "observed_timestamp": "1792297252107582808",
+          "scope_name": "credit-lab",
+          "service_name": "service-b",
+          "severity_number": "9",
+          "severity_text": "INFO",
+          "span_id": "104a9d20f23bf7e5",
+          "telemetry_sdk_language": "python",
+          "telemetry_sdk_name": "opentelemetry",
+          "telemetry_sdk_version": "1.38.0",
+          "trace_id": "ff49725ffe1d4584b007b85a492fad59"
+        },
+        "values": [
+          [
+            "1792297252107349760",
+            "credit.data.success"
+          ]
+        ]
+      }
+    ],
+    "stats": {
+      "summary": {
+        "bytesProcessedPerSecond": 56404,
+        "linesProcessedPerSecond": 403,
+        "totalBytesProcessed": 3494,
+        "totalLinesProcessed": 25,
+        "execTime": 0.061945,
+        "queueTime": 0.001606,
+        "subqueries": 0,
+        "totalEntriesReturned": 3,
+        "splits": 0,
+        "shards": 1,
+        "totalPostFilterLines": 3,
+        "totalStructuredMetadataBytesProcessed": 3000
+      },
+      "querier": {
+        "store": {
+          "totalChunksRef": 0,
+          "totalChunksDownloaded": 0,
+          "chunksDownloadTime": 0,
+          "queryReferencedStructuredMetadata": false,
+          "chunk": {
+            "headChunkBytes": 0,
+            "headChunkLines": 0,
+            "decompressedBytes": 0,
+            "decompressedLines": 0,
+            "compressedBytes": 0,
+            "totalDuplicates": 0,
+            "postFilterLines": 0,
+            "headChunkStructuredMetadataBytes": 0,
+            "decompressedStructuredMetadataBytes": 0
+          },
+          "chunkRefsFetchTime": 0,
+          "congestionControlLatency": 0,
+          "pipelineWrapperFilteredLines": 0
+        }
+      },
+      "ingester": {
+        "totalReached": 1,
+        "totalChunksMatched": 3,
+        "totalBatches": 2,
+        "totalLinesSent": 3,
+        "store": {
+          "totalChunksRef": 0,
+          "totalChunksDownloaded": 0,
+          "chunksDownloadTime": 0,
+          "queryReferencedStructuredMetadata": true,
+          "chunk": {
+            "headChunkBytes": 3494,
+            "headChunkLines": 25,
+            "decompressedBytes": 0,
+            "decompressedLines": 0,
+            "compressedBytes": 0,
+            "totalDuplicates": 0,
+            "postFilterLines": 3,
+            "headChunkStructuredMetadataBytes": 3000,
+            "decompressedStructuredMetadataBytes": 0
+          },
+          "chunkRefsFetchTime": 1270038,
+          "congestionControlLatency": 0,
+          "pipelineWrapperFilteredLines": 0
+        }
+      },
+      "cache": {
+        "chunk": {
+          "entriesFound": 0,
+          "entriesRequested": 0,
+          "entriesStored": 0,
+          "bytesReceived": 0,
+          "bytesSent": 0,
+          "requests": 0,
+          "downloadTime": 0,
+          "queryLengthServed": 0
+        },
+        "index": {
+          "entriesFound": 0,
+          "entriesRequested": 0,
+          "entriesStored": 0,
+          "bytesReceived": 0,
+          "bytesSent": 0,
+          "requests": 0,
+          "downloadTime": 0,
+          "queryLengthServed": 0
+        },
+        "result": {
+          "entriesFound": 0,
+          "entriesRequested": 0,
+          "entriesStored": 0,
+          "bytesReceived": 0,
+          "bytesSent": 0,
+          "requests": 0,
+          "downloadTime": 0,
+          "queryLengthServed": 0
+        },
+        "statsResult": {
+          "entriesFound": 0,
+          "entriesRequested": 0,
+          "entriesStored": 0,
+          "bytesReceived": 0,
+          "bytesSent": 0,
+          "requests": 0,
+          "downloadTime": 0,
+          "queryLengthServed": 0
+        },
+        "volumeResult": {
+          "entriesFound": 0,
+          "entriesRequested": 0,
+          "entriesStored": 0,
+          "bytesReceived": 0,
+          "bytesSent": 0,
+          "requests": 0,
+          "downloadTime": 0,
+          "queryLengthServed": 0
+        },
+        "seriesResult": {
+          "entriesFound": 0,
+          "entriesRequested": 0,
+          "entriesStored": 0,
+          "bytesReceived": 0,
+          "bytesSent": 0,
+          "requests": 0,
+          "downloadTime": 0,
+          "queryLengthServed": 0
+        },
+        "labelResult": {
+          "entriesFound": 0,
+          "entriesRequested": 0,
+          "entriesStored": 0,
+          "bytesReceived": 0,
+          "bytesSent": 0,
+          "requests": 0,
+          "downloadTime": 0,
+          "queryLengthServed": 0
+        },
+        "instantMetricResult": {
+          "entriesFound": 0,
+          "entriesRequested": 0,
+          "entriesStored": 0,
+          "bytesReceived": 0,
+          "bytesSent": 0,
+          "requests": 0,
+          "downloadTime": 0,
+          "queryLengthServed": 0
+        }
+      },
+      "index": {
+        "totalChunks": 0,
+        "postFilterChunks": 0,
+        "shardsDuration": 0,
+        "usedBloomFilters": false
+      }
+    }
+  }
+}

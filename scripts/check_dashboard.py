@@ -16,5 +16,5 @@ for metric in ['credit_process_memory_bytes','http_server_duration_milliseconds_
     with urllib.request.urlopen(url,timeout=15) as response: data=json.load(response)
     assert data['data']['result'],('OTLP SDK metric missing',metric)
     results.append({'metric':metric,'response':data})
-Path('docs/evidence/dashboard-queries.json').write_text(json.dumps(results,indent=2))
+Path('docs/evidence/integrator/dashboard-queries.json').write_text(json.dumps(results,indent=2))
 print('Dashboard y métricas OTLP verificados:',len(results),'queries')

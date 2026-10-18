@@ -26,15 +26,36 @@ services:
     <<: *app
     command: [uvicorn, app.storage:app, --host, 0.0.0.0, --port, "8001"]
     environment:
-      DATABASE_URL: postgresql+psycopg://lab:${POSTGRES_PASSWORD:-local-lab-only}@postgres:5432/credits
+      DATA_SERVICE_URL: http://data-service:8002
       OTEL_ENABLED: ${OTEL_ENABLED:-true}
       OTEL_SERVICE_NAME: service-b
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4318
+    depends_on:
+      data-service: {condition: service_healthy}
+      collector: {condition: service_started}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  data-service:
+    <<: *app
+    command: [uvicorn, app.data_service:app, --host, 0.0.0.0, --port, "8002"]
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+      DATABASE_USER: lab
+      DATABASE_NAME: credits
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-local-lab-only}
+      DATABASE_SSLMODE: disable
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_SERVICE_NAME: data-service
       OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4318
     depends_on:
       postgres: {condition: service_healthy}
       collector: {condition: service_started}
     healthcheck:
-      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -84,7 +105,7 @@ services:
     image: grafana/k6:0.57.0
     profiles: [load]
     environment: {BASE_URL: "http://service-a:8000"}
-    volumes: [./otel/k6:/scripts:ro, ./docs/evidence:/results]
+    volumes: [./otel/k6:/scripts:ro, ./docs/evidence/integrator:/results]
     entrypoint: [k6]
     command: [run, /scripts/load.js]
 volumes:

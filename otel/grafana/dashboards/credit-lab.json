@@ -1,8 +1,8 @@
 {
   "uid": "credit-lab",
-  "title": "Laboratorio creditos OTel",
+  "title": "Integrador: Service A → Service B → data-service",
   "schemaVersion": 40,
-  "version": 2,
+  "version": 3,
   "refresh": "5s",
   "time": {
     "from": "now-15m",
@@ -25,14 +25,14 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_highr_seconds_bucket{instance=\"service-a:8000\"}[1m])))",
+          "expr": "histogram_quantile(0.95, sum by (le, instance) (rate(http_request_duration_highr_seconds_bucket{job=\"apps\"}[1m])))",
           "refId": "A",
-          "legendFormat": "p95"
+          "legendFormat": "{{instance}} A"
         },
         {
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_highr_seconds_bucket{instance=\"service-a:8000\"}[1m])))",
+          "expr": "histogram_quantile(0.99, sum by (le, instance) (rate(http_request_duration_highr_seconds_bucket{job=\"apps\"}[1m])))",
           "refId": "B",
-          "legendFormat": "p99"
+          "legendFormat": "{{instance}} B"
         },
         {
           "expr": "vector(0.5)",
@@ -62,9 +62,9 @@
       },
       "targets": [
         {
-          "expr": "(sum(rate(http_requests_total{instance=\"service-a:8000\",status=~\"5..\"}[1m])) or vector(0)) / clamp_min(sum(rate(http_requests_total{instance=\"service-a:8000\"}[1m])), 0.001)",
+          "expr": "(sum by (instance) (rate(http_requests_total{job=\"apps\",status=~\"5..\"}[1m])) or 0 * sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m]))) / clamp_min(sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m])), 0.001)",
           "refId": "A",
-          "legendFormat": ""
+          "legendFormat": "{{instance}} A"
         },
         {
           "expr": "vector(0.005)",
@@ -89,9 +89,9 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(http_requests_total{instance=\"service-a:8000\",handler!=\"/metrics\"}[1m]))",
+          "expr": "sum by (instance) (rate(http_requests_total{job=\"apps\",handler!=\"/metrics\"}[1m]))",
           "refId": "A",
-          "legendFormat": ""
+          "legendFormat": "{{instance}} A"
         }
       ]
     },
@@ -116,19 +116,19 @@
           "legendFormat": ""
         },
         {
-          "expr": "1 - (sum(rate(http_requests_total{instance=\"service-a:8000\",status=~\"5..\"}[1m])) or vector(0)) / clamp_min(sum(rate(http_requests_total{instance=\"service-a:8000\"}[1m])),0.001)",
+          "expr": "1 - (sum by (instance) (rate(http_requests_total{job=\"apps\",status=~\"5..\"}[1m])) or 0 * sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m]))) / clamp_min(sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m])),0.001)",
           "refId": "B",
-          "legendFormat": ""
+          "legendFormat": "{{instance}} B"
         },
         {
-          "expr": "(sum(rate(http_requests_total{instance=\"service-a:8000\",status=~\"2..\"}[1m])) or vector(0)) / clamp_min(sum(rate(http_requests_total{instance=\"service-a:8000\"}[1m])), 0.001)",
+          "expr": "(sum by (instance) (rate(http_requests_total{job=\"apps\",status=~\"2..\"}[1m])) or 0 * sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m]))) / clamp_min(sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m])), 0.001)",
           "refId": "C",
-          "legendFormat": "Respuestas 2xx / total"
+          "legendFormat": "{{instance}} C"
         },
         {
           "expr": "vector(0.995)",
           "refId": "D",
-          "legendFormat": "Objetivo \u00e9xito >= 99.5%"
+          "legendFormat": "Objetivo éxito >= 99.5%"
         }
       ]
     },

@@ -1,73 +1,64 @@
-"""Service B: relational persistence. Schema creation is lab-only, not a migration system."""
+"""Service B: credit operations delegated to data-service."""
 import os
 from contextlib import asynccontextmanager
-from uuid import uuid4
+
+import httpx
 from fastapi import FastAPI, HTTPException
-from sqlalchemy import URL, create_engine, MetaData, Table, Column, String, Float, select, insert, update, text
 from prometheus_fastapi_instrumentator import Instrumentator
+
 from .models import CreditApplication, CreditApplicationCreate, CreditApplicationStatusUpdate
 from .telemetry import configure, tracer, logger, flush
 
-database_url = os.getenv("DATABASE_URL") or URL.create(
-    "postgresql+psycopg", username=os.getenv("DATABASE_USER", "lab"),
-    password=os.environ.get("DATABASE_PASSWORD"), database=os.getenv("DATABASE_NAME", "credits"),
-    host=os.getenv("DATABASE_HOST"),
-    query={"host": os.environ["DATABASE_SOCKET"]} if os.getenv("DATABASE_SOCKET") else {"sslmode": "require"})
-engine = create_engine(database_url, pool_pre_ping=True)
-metadata = MetaData()
-credits = Table("credit_applications", metadata,
-    Column("application_id", String(36), primary_key=True),
-    Column("customer_name", String, nullable=False),
-    Column("document_number", String, nullable=False),
-    Column("requested_amount", Float, nullable=False),
-    Column("status", String, nullable=False))
+DATA_SERVICE_URL = os.getenv("DATA_SERVICE_URL", "http://data-service:8002").rstrip("/")
+_client = httpx.Client(timeout=httpx.Timeout(8, connect=2))
+
 
 @asynccontextmanager
 async def lifespan(app):
-    metadata.create_all(engine)
     yield
+    _client.close()
     flush()
-    engine.dispose()
+
 
 app = FastAPI(title="Credit storage service", lifespan=lifespan)
-configure(app, engine)
+configure(app)
 Instrumentator().instrument(app).expose(app)
+
+
+def remote(method, path, payload=None):
+    with tracer.start_as_current_span("credit.data.request"):
+        try:
+            response = _client.request(method, DATA_SERVICE_URL + path, json=payload)
+            if response.status_code == 404:
+                raise HTTPException(404, "Credit application not found")
+            response.raise_for_status()
+        except httpx.HTTPError:
+            logger.error("credit.data.unavailable")
+            raise HTTPException(503, "Credit storage unavailable") from None
+        logger.info("credit.data.success")
+        return response.json()
+
 
 @app.get("/health")
 def health():
-    with engine.connect() as conn:
-        conn.execute(text("SELECT 1"))
-    return {"status": "ok"}
+    return remote("GET", "/health")
+
 
 @app.post("/credit-applications", response_model=CreditApplication, status_code=201)
 def create(data: CreditApplicationCreate):
-    with tracer.start_as_current_span("credit.persist"):
-        row = dict(data.model_dump(), application_id=str(uuid4()), status="PENDING")
-        with engine.begin() as conn:
-            conn.execute(insert(credits).values(**row))
-        logger.info("credit.persisted")
-        return row
+    return remote("POST", "/credit-applications", data.model_dump(mode="json"))
+
 
 @app.get("/credit-applications", response_model=list[CreditApplication])
 def listing():
-    with engine.connect() as conn:
-        return [dict(row) for row in conn.execute(select(credits)).mappings()]
+    return remote("GET", "/credit-applications")
+
 
 @app.get("/credit-applications/{application_id}", response_model=CreditApplication)
 def get(application_id: str):
-    with engine.connect() as conn:
-        row = conn.execute(select(credits).where(credits.c.application_id == application_id)).mappings().first()
-    if row is None:
-        raise HTTPException(404, "Credit application not found")
-    return dict(row)
+    return remote("GET", "/credit-applications/" + application_id)
+
 
 @app.put("/credit-applications/{application_id}/status", response_model=CreditApplication)
 def status(application_id: str, data: CreditApplicationStatusUpdate):
-    with tracer.start_as_current_span("credit.status_update"):
-        with engine.begin() as conn:
-            row = conn.execute(update(credits).where(credits.c.application_id == application_id)
-                .values(status=data.status.value).returning(credits)).mappings().first()
-        if row is None:
-            raise HTTPException(404, "Credit application not found")
-        logger.info("credit.status.updated")
-        return dict(row)
+    return remote("PUT", "/credit-applications/" + application_id + "/status", data.model_dump(mode="json"))

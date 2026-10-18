@@ -1,0 +1,355 @@
+{
+  "http_requests_total{job=\"apps\"}": {
+    "status": "success",
+    "data": {
+      "resultType": "vector",
+      "result": [
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/health",
+            "instance": "service-b:8001",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "12"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/metrics",
+            "instance": "service-b:8001",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "13"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/metrics",
+            "instance": "service-a:8000",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "12"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/health",
+            "instance": "service-a:8000",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "14"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications",
+            "instance": "service-a:8000",
+            "job": "apps",
+            "method": "POST",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications/{application_id}",
+            "instance": "service-a:8000",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "2"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications",
+            "instance": "service-a:8000",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications/{application_id}/status",
+            "instance": "service-a:8000",
+            "job": "apps",
+            "method": "PUT",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications/{application_id}",
+            "instance": "service-a:8000",
+            "job": "apps",
+            "method": "GET",
+            "status": "4xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications",
+            "instance": "service-a:8000",
+            "job": "apps",
+            "method": "POST",
+            "status": "4xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications/{application_id}",
+            "instance": "service-a:8000",
+            "job": "apps",
+            "method": "GET",
+            "status": "5xx"
+          },
+          "value": [
+            1792297262.131,
+            "3"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications/{application_id}",
+            "instance": "service-b:8001",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "2"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications",
+            "instance": "service-b:8001",
+            "job": "apps",
+            "method": "POST",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications/{application_id}/status",
+            "instance": "service-b:8001",
+            "job": "apps",
+            "method": "PUT",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/health",
+            "instance": "data-service:8002",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications",
+            "instance": "service-b:8001",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications/{application_id}",
+            "instance": "service-b:8001",
+            "job": "apps",
+            "method": "GET",
+            "status": "4xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications/{application_id}",
+            "instance": "service-b:8001",
+            "job": "apps",
+            "method": "GET",
+            "status": "5xx"
+          },
+          "value": [
+            1792297262.131,
+            "3"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/health",
+            "instance": "service-b:8001",
+            "job": "apps",
+            "method": "GET",
+            "status": "5xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "http_requests_total",
+            "handler": "/credit-applications/{application_id}",
+            "instance": "data-service:8002",
+            "job": "apps",
+            "method": "GET",
+            "status": "2xx"
+          },
+          "value": [
+            1792297262.131,
+            "1"
+          ]
+        }
+      ]
+    }
+  },
+  "credit_process_memory_bytes": {
+    "status": "success",
+    "data": {
+      "resultType": "vector",
+      "result": [
+        {
+          "metric": {
+            "__name__": "credit_process_memory_bytes",
+            "deployment_environment": "lab",
+            "exported_job": "service-b",
+            "instance": "collector:8889",
+            "job": "otel-apps",
+            "lab_name": "credit-lab",
+            "otel_scope_name": "credit-lab",
+            "service_name": "service-b",
+            "telemetry_sdk_language": "python",
+            "telemetry_sdk_name": "opentelemetry",
+            "telemetry_sdk_version": "1.38.0"
+          },
+          "value": [
+            1792297262.159,
+            "89985024"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "credit_process_memory_bytes",
+            "deployment_environment": "lab",
+            "exported_job": "service-a",
+            "instance": "collector:8889",
+            "job": "otel-apps",
+            "lab_name": "credit-lab",
+            "otel_scope_name": "credit-lab",
+            "service_name": "service-a",
+            "telemetry_sdk_language": "python",
+            "telemetry_sdk_name": "opentelemetry",
+            "telemetry_sdk_version": "1.38.0"
+          },
+          "value": [
+            1792297262.159,
+            "88915968"
+          ]
+        },
+        {
+          "metric": {
+            "__name__": "credit_process_memory_bytes",
+            "deployment_environment": "lab",
+            "exported_job": "data-service",
+            "instance": "collector:8889",
+            "job": "otel-apps",
+            "lab_name": "credit-lab",
+            "otel_scope_name": "credit-lab",
+            "service_name": "data-service",
+            "telemetry_sdk_language": "python",
+            "telemetry_sdk_name": "opentelemetry",
+            "telemetry_sdk_version": "1.38.0"
+          },
+          "value": [
+            1792297262.159,
+            "115089408"
+          ]
+        }
+      ]
+    }
+  }
+}

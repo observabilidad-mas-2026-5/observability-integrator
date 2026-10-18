@@ -1,0 +1,1456 @@
+[
+  {
+    "panel": "Latencia p95 / p99 (s)",
+    "query": "histogram_quantile(0.95, sum by (le, instance) (rate(http_request_duration_highr_seconds_bucket{job=\"apps\"}[1m])))",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "data-service:8002"
+            },
+            "value": [
+              1792297275.654,
+              "0.01899999999999993"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "service-b:8001"
+            },
+            "value": [
+              1792297275.654,
+              "0.059999999999999845"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "service-a:8000"
+            },
+            "value": [
+              1792297275.654,
+              "0.04649999999999999"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Latencia p95 / p99 (s)",
+    "query": "histogram_quantile(0.99, sum by (le, instance) (rate(http_request_duration_highr_seconds_bucket{job=\"apps\"}[1m])))",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "data-service:8002"
+            },
+            "value": [
+              1792297275.671,
+              "0.043"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "service-b:8001"
+            },
+            "value": [
+              1792297275.671,
+              "4.34"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "service-a:8000"
+            },
+            "value": [
+              1792297275.671,
+              "0.06649999999999992"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Latencia p95 / p99 (s)",
+    "query": "vector(0.5)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.678,
+              "0.5"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Latencia p95 / p99 (s)",
+    "query": "vector(1)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.685,
+              "1"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Errores HTTP (fraccion)",
+    "query": "(sum by (instance) (rate(http_requests_total{job=\"apps\",status=~\"5..\"}[1m])) or 0 * sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m]))) / clamp_min(sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m])), 0.001)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "service-a:8000"
+            },
+            "value": [
+              1792297275.69,
+              "0.08437271161130655"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "service-b:8001"
+            },
+            "value": [
+              1792297275.69,
+              "0.046203922542097244"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "data-service:8002"
+            },
+            "value": [
+              1792297275.69,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Errores HTTP (fraccion)",
+    "query": "vector(0.005)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.7,
+              "0.005"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Trafico (solicitudes/s)",
+    "query": "sum by (instance) (rate(http_requests_total{job=\"apps\",handler!=\"/metrics\"}[1m]))",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "service-b:8001"
+            },
+            "value": [
+              1792297275.706,
+              "0.2127484469282429"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "service-a:8000"
+            },
+            "value": [
+              1792297275.706,
+              "0.26904728976787023"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "data-service:8002"
+            },
+            "value": [
+              1792297275.706,
+              "0.342602638040313"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Disponibilidad / exito",
+    "query": "up{job=\"apps\"}",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "up",
+              "instance": "service-b:8001",
+              "job": "apps"
+            },
+            "value": [
+              1792297275.713,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "up",
+              "instance": "service-a:8000",
+              "job": "apps"
+            },
+            "value": [
+              1792297275.713,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "up",
+              "instance": "data-service:8002",
+              "job": "apps"
+            },
+            "value": [
+              1792297275.713,
+              "1"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Disponibilidad / exito",
+    "query": "1 - (sum by (instance) (rate(http_requests_total{job=\"apps\",status=~\"5..\"}[1m])) or 0 * sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m]))) / clamp_min(sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m])),0.001)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "service-a:8000"
+            },
+            "value": [
+              1792297275.72,
+              "0.9155329660543152"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "service-b:8001"
+            },
+            "value": [
+              1792297275.72,
+              "0.9537405209595418"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "data-service:8002"
+            },
+            "value": [
+              1792297275.72,
+              "1"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Disponibilidad / exito",
+    "query": "(sum by (instance) (rate(http_requests_total{job=\"apps\",status=~\"2..\"}[1m])) or 0 * sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m]))) / clamp_min(sum by (instance) (rate(http_requests_total{job=\"apps\"}[1m])), 0.001)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "service-b:8001"
+            },
+            "value": [
+              1792297275.728,
+              "0.9537257081906555"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "service-a:8000"
+            },
+            "value": [
+              1792297275.728,
+              "0.9155078185924015"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "data-service:8002"
+            },
+            "value": [
+              1792297275.728,
+              "1"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Disponibilidad / exito",
+    "query": "vector(0.995)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.734,
+              "0.995"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "CPU servicios (cores)",
+    "query": "rate(process_cpu_seconds_total{job=\"apps\"}[1m])",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "service-b:8001",
+              "job": "apps"
+            },
+            "value": [
+              1792297275.741,
+              "0.00973236009732361"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "service-a:8000",
+              "job": "apps"
+            },
+            "value": [
+              1792297275.741,
+              "0.007299777530589552"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "data-service:8002",
+              "job": "apps"
+            },
+            "value": [
+              1792297275.741,
+              "0.055958430879917774"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "CPU servicios (cores)",
+    "query": "rate(otelcol_process_cpu_seconds_total{job=\"collector\"}[1m])",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "collector:8888",
+              "job": "collector",
+              "otel_scope_name": "go.opentelemetry.io/collector/service"
+            },
+            "value": [
+              1792297275.746,
+              "0.00894556528359343"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Errores Collector (eventos/s)",
+    "query": "sum(rate(otelcol_exporter_send_failed_spans_total[1m])) or vector(0)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.752,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Errores Collector (eventos/s)",
+    "query": "sum(rate(otelcol_exporter_send_failed_log_records_total[1m])) or vector(0)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.758,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Errores Collector (eventos/s)",
+    "query": "sum(rate(otelcol_exporter_send_failed_metric_points_total[1m])) or vector(0)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.763,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Errores Collector (eventos/s)",
+    "query": "sum(rate(otelcol_receiver_refused_spans_total[1m])) or vector(0)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.77,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Errores Collector (eventos/s)",
+    "query": "sum(rate(otelcol_receiver_refused_log_records_total[1m])) or vector(0)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.777,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "panel": "Errores Collector (eventos/s)",
+    "query": "sum(rate(otelcol_receiver_refused_metric_points_total[1m])) or vector(0)",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792297275.784,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "metric": "credit_process_memory_bytes",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "credit_process_memory_bytes",
+              "deployment_environment": "lab",
+              "exported_job": "service-b",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "otel_scope_name": "credit-lab",
+              "service_name": "service-b",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.791,
+              "92151808"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "credit_process_memory_bytes",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "otel_scope_name": "credit-lab",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.791,
+              "89833472"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "credit_process_memory_bytes",
+              "deployment_environment": "lab",
+              "exported_job": "data-service",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "otel_scope_name": "credit-lab",
+              "service_name": "data-service",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.791,
+              "106917888"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "metric": "http_server_duration_milliseconds_count",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "200",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "2"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "404",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "503",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "2"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "POST",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "201",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "POST",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "422",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "PUT",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}/status",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "service-a:8000",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "20"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "POST",
+              "http_scheme": "http",
+              "http_server_name": "service-a:8000",
+              "http_status_code": "201",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "20"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "PUT",
+              "http_scheme": "http",
+              "http_server_name": "service-a:8000",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}/status",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "20"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "503",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "data-service",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.8:8002",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "data-service:8002",
+              "http_status_code": "200",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8002",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "data-service",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "data-service",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.8:8002",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "data-service:8002",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8002",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "data-service",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "data-service",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.8:8002",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "data-service:8002",
+              "http_status_code": "404",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8002",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "data-service",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "data-service",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.8:8002",
+              "http_method": "POST",
+              "http_scheme": "http",
+              "http_server_name": "data-service:8002",
+              "http_status_code": "201",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8002",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "data-service",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "data-service",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.8:8002",
+              "http_method": "PUT",
+              "http_scheme": "http",
+              "http_server_name": "data-service:8002",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}/status",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8002",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "data-service",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-b",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8001",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "service-b:8001",
+              "http_status_code": "200",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8001",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-b",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-b",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8001",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "service-b:8001",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8001",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-b",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "2"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-b",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8001",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "service-b:8001",
+              "http_status_code": "404",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8001",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-b",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-b",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8001",
+              "http_method": "POST",
+              "http_scheme": "http",
+              "http_server_name": "service-b:8001",
+              "http_status_code": "201",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8001",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-b",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-b",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8001",
+              "http_method": "PUT",
+              "http_scheme": "http",
+              "http_server_name": "service-b:8001",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}/status",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8001",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-b",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.10:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "200",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.10:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "2"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.10:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "404",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.10:8000",
+              "http_method": "POST",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "201",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.10:8000",
+              "http_method": "POST",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "422",
+              "http_target": "/credit-applications",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.10:8000",
+              "http_method": "PUT",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "200",
+              "http_target": "/credit-applications/{application_id}/status",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-b",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.9:8001",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "service-b:8001",
+              "http_status_code": "503",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8001",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-b",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "3"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "http_server_duration_milliseconds_count",
+              "deployment_environment": "lab",
+              "exported_job": "service-a",
+              "http_flavor": "1.1",
+              "http_host": "172.21.0.10:8000",
+              "http_method": "GET",
+              "http_scheme": "http",
+              "http_server_name": "127.0.0.1:28000",
+              "http_status_code": "503",
+              "http_target": "/credit-applications/{application_id}",
+              "instance": "collector:8889",
+              "job": "otel-apps",
+              "lab_name": "credit-lab",
+              "net_host_port": "8000",
+              "otel_scope_name": "opentelemetry.instrumentation.fastapi",
+              "otel_scope_schema_url": "https://opentelemetry.io/schemas/1.11.0",
+              "otel_scope_version": "0.59b0",
+              "service_name": "service-a",
+              "telemetry_sdk_language": "python",
+              "telemetry_sdk_name": "opentelemetry",
+              "telemetry_sdk_version": "1.38.0"
+            },
+            "value": [
+              1792297275.797,
+              "3"
+            ]
+          }
+        ]
+      }
+    }
+  }
+]
