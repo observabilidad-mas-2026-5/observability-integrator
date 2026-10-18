@@ -1,0 +1,58 @@
+[
+  {
+    "address": "aws_ecs_service.service[\"service-a\"]",
+    "actions": [
+      "update"
+    ]
+  },
+  {
+    "address": "aws_ecs_service.service[\"service-b\"]",
+    "actions": [
+      "update"
+    ]
+  },
+  {
+    "address": "aws_ecs_task_definition.service[\"service-a\"]",
+    "actions": [
+      "delete",
+      "create"
+    ]
+  },
+  {
+    "address": "aws_ecs_task_definition.service[\"service-b\"]",
+    "actions": [
+      "delete",
+      "create"
+    ]
+  },
+  {
+    "address": "aws_ecs_task_definition.synthetic_test[0]",
+    "actions": [
+      "create"
+    ]
+  },
+  {
+    "address": "aws_security_group.synthetic_test[0]",
+    "actions": [
+      "create"
+    ]
+  },
+  {
+    "address": "aws_vpc_security_group_egress_rule.synthetic_api[0]",
+    "actions": [
+      "create"
+    ]
+  },
+  {
+    "address": "aws_vpc_security_group_egress_rule.synthetic_https[0]",
+    "actions": [
+      "create"
+    ]
+  },
+  {
+    "address": "aws_vpc_security_group_ingress_rule.synthetic_api[0]",
+    "actions": [
+      "create"
+    ]
+  }
+]

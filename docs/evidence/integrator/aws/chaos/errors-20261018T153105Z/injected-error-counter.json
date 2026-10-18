@@ -1,0 +1,38 @@
+{
+  "queried_utc": "2026-10-18T15:49:06.108724+00:00",
+  "query": "{\"chaos.injected.errors\",\"@resource.service.name\"=\"data-service\"}",
+  "http_status": 200,
+  "result": {
+    "status": "success",
+    "data": {
+      "resultType": "vector",
+      "result": [
+        {
+          "metric": {
+            "@aws.account": "467866783326",
+            "@aws.region": "us-east-2",
+            "@instrumentation.@name": "credit-lab.chaos",
+            "@resource.cloud.region": "us-east-2",
+            "@resource.deployment.environment": "aws-lab",
+            "@resource.lab.name": "observability-integrator",
+            "@resource.service.name": "data-service",
+            "@resource.service.namespace": "observability-integrator",
+            "@resource.telemetry.sdk.language": "python",
+            "@resource.telemetry.sdk.name": "opentelemetry",
+            "@resource.telemetry.sdk.version": "1.38.0",
+            "__monotonicity__": "true",
+            "__name__": "chaos.injected.errors",
+            "__temporality__": "cumulative",
+            "__type__": "Sum",
+            "__unit__": "{request}",
+            "chaos.experiment": "data-service-errors-10pct-v1"
+          },
+          "value": [
+            1792338547.182,
+            "50"
+          ]
+        }
+      ]
+    }
+  }
+}

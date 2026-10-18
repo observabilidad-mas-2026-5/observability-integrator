@@ -1,0 +1,18 @@
+{
+  "repository": "467866783326.dkr.ecr.us-east-2.amazonaws.com/observability-integrator/api",
+  "tag": "chaos-errors-v2",
+  "digest": "sha256:28ce28d2a411989046aa611bc23a09f8cd9eb89b17a4ce47ed4db739e14a1a21",
+  "platform": "linux/amd64",
+  "initial_unchanged": true,
+  "service_a_b_tag_unchanged": "chaos-latency-v1",
+  "collector_tag_unchanged": "traces-v2",
+  "local_validation": {
+    "python_tests_passed": 47,
+    "python_tests_failed": 0,
+    "python_warnings": 2,
+    "terraform_mock_tests_passed": 5,
+    "terraform_mock_tests_failed": 0,
+    "terraform_fmt_check": "passed",
+    "terraform_validate": "passed"
+  }
+}

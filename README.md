@@ -1,12 +1,12 @@
 # observability-integrator
 
-Laboratorio integrador basado en `observability-end-to-end_v2`. Implementa el recorrido Service A → Service B → data-service → PostgreSQL, con Collector, Jaeger, Prometheus, Grafana, Loki, pruebas Python y k6. También está desplegado y validado en AWS Ohio con tres servicios ECS, RDS privado, X-Ray y CloudWatch; consultar las [evidencias reales de AWS](docs/evidence/integrator/aws/README.md).
+Construimos nuestro laboratorio integrador sobre `observability-end-to-end_v2`. Implementamos el recorrido Service A → Service B → data-service → PostgreSQL, con Collector, Jaeger, Prometheus, Grafana, Loki, pruebas Python y k6. También lo desplegamos y validamos en AWS Ohio con tres servicios ECS, RDS privado, X-Ray y CloudWatch; documentamos los resultados en las [evidencias reales de AWS](docs/evidence/integrator/aws/README.md).
 
-Service A conserva su API pública. Service B delega mediante HTTPX a `DATA_SERVICE_URL=http://data-service:8002`; solo data-service accede a PostgreSQL. Los tres servicios comparten los modelos de crédito y exportan trazas, métricas y logs correlacionados. AIOps, seguridad y experimentos de caos quedan pendientes; el plan de trabajo se conserva localmente en `PLAN_INTEGRADOR.md`, fuera del seguimiento de Git. La configuración Terraform no implica que existan recursos desplegados en AWS.
+Conservamos la API pública de Service A. Service B delega mediante HTTPX a `DATA_SERVICE_URL=http://data-service:8002`; solo data-service accede a PostgreSQL. Los tres servicios comparten los modelos de crédito y exportan trazas, métricas y logs correlacionados. Completamos los dos experimentos de caos descritos abajo; mantenemos AIOps y seguridad como líneas de trabajo del equipo, sin atribuirles validaciones en esta entrega. Conservamos nuestro plan localmente en `PLAN_INTEGRADOR.md`, fuera del seguimiento de Git. Distinguimos la configuración Terraform de los despliegues comprobados mediante evidencias AWS.
 
 ## Ejecución local
 
-Con Docker y Docker Compose disponibles, ejecutar desde la raíz:
+Con Docker y Docker Compose disponibles, ejecutamos desde la raíz:
 
 ```powershell
 docker compose -f compose.otel.yml config --quiet
@@ -14,7 +14,7 @@ docker compose -f compose.otel.yml up -d --build
 docker compose -f compose.otel.yml ps
 ```
 
-Los valores predeterminados permiten arrancar sin crear un `.env`. `.env.example` documenta las variables disponibles y contiene únicamente contraseñas de ejemplo para uso local. No publicar credenciales reales.
+Podemos arrancar con los valores predeterminados sin crear un `.env`. En `.env.example` documentamos las variables disponibles e incluimos únicamente contraseñas de ejemplo para uso local. No publicamos credenciales reales.
 
 | Acceso | Puerto anterior | Puerto del integrador |
 |---|---:|---:|
@@ -45,11 +45,15 @@ docker compose -f compose.otel.yml down
 
 ## Documentación y pendientes
 
-Se conservan las guías [local](docs/GUIA_LOCAL.md), [AWS](docs/IMPLEMENTACION_INICIAL_AWS.md) y [costos y eliminación](docs/NUBES_COSTOS_Y_ELIMINACION.md). Las guías describen el laboratorio anterior; este README documenta el recorrido de tres servicios. `scripts/validate_infra.ps1` conserva referencias a GCP, que no se incluyó en este repositorio, y no forma parte de la validación local del Módulo A.
+Consultamos la guía [local](docs/GUIA_LOCAL.md) y la [operación AWS vigente](infra/aws/README.md), que reúne despliegue, imágenes, estado compartido, costos y pausa/reactivación de ECS. Retiramos las dos guías históricas de AWS/costos por describir la arquitectura anterior; conservamos sus [capturas históricas](docs/evidence/integrator/aws/legacy-aws-captures.md), sin presentarlas como evidencia del integrador. `scripts/validate_infra.ps1` conserva referencias a GCP, que no incluimos en este repositorio, y no forma parte de la validación local del Módulo A.
 
 ## Validación del Módulo A
 
-Consulta el [resumen de evidencias locales](docs/evidence/integrator/README.md), con enlaces a pruebas, trazas, métricas y logs.
+Ejecutamos el [experimento de caos 1: latencia de 200 ms en Service B](docs/CHAOS_EXPERIMENT_1.md) en AWS y lo desactivamos tras la limpieza. En las [evidencias reales y locales](docs/evidence/integrator/aws/chaos/README.md) distinguimos ambos alcances; confirmamos 540 demoras en B y la recuperación, sin errores ni consumo del presupuesto del SLO de trabajo.
+
+En el [experimento 2: errores en data-service](docs/CHAOS_EXPERIMENT_2.md) registramos 50 errores entre 500 intentos internos (10 %). Service Connect los recuperó: las 1350 solicitudes finales de las tres fases devolvieron 200. En el [informe AWS](docs/evidence/integrator/aws/chaos/errors-20261018T153105Z/README.md) distinguimos el SLO del servidor del cliente y conservamos el diagnóstico fallido anterior, las trazas, métricas, logs y comprobaciones de limpieza. Para pausar o reanudar, conservamos explícitamente las etiquetas actuales descritas en la guía AWS.
+
+Consultamos el [resumen de evidencias locales](docs/evidence/integrator/README.md), con enlaces a pruebas, trazas, métricas y logs.
 
 ```powershell
 docker compose -f compose.otel.yml run --rm --no-deps -e OTEL_ENABLED=false -e SERVICE_B_URL= -e PYTHONDONTWRITEBYTECODE=1 -v "${PWD}/tests:/app/tests:ro" service-a python -m pytest -q -p no:cacheprovider /app/tests
@@ -68,4 +72,4 @@ data-service reutiliza la instrumentación FastAPI/HTTPX/SQLAlchemy y añade spa
 
 data-service admite `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_SSLMODE` y `DATABASE_SSLROOTCERT`. TLS utiliza `verify-full` por defecto fuera del Compose local; montar el certificado CA de RDS y configurar su ruta en `DATABASE_SSLROOTCERT`. `DATABASE_URL` tiene prioridad y debe incluir TLS seguro si se utiliza para RDS. Compose local configura PostgreSQL con TLS desactivado únicamente dentro de la red local de contenedores.
 
-La [infraestructura AWS con Terraform](infra/aws/README.md) asigna la conexión y el secreto RDS únicamente a data-service, con TLS verificable. Ejecuta tres servicios ECS con Service Connect, un Collector por tarea y exportación a X-Ray/CloudWatch. Se usan `api:initial` y `collector:traces-v2`; el exporter de trazas es `awsxray`, sin modificar el destino regional X-Ray. La [prueba privada temporal](infra/aws/SYNTHETIC_TEST.md) confirmó HTTP 201, lectura persistida HTTP 200, la traza A → B → data-service → PostgreSQL y logs correlacionados de los tres servicios. Sus recursos temporales fueron retirados; las aplicaciones y RDS permanecen activos y generan costos. La creación automática de tablas y el usuario administrador son concesiones del laboratorio; un despliegue productivo requiere usuario limitado y migraciones controladas.
+Con nuestra [infraestructura AWS con Terraform](infra/aws/README.md) asignamos la conexión y el secreto RDS únicamente a data-service, con TLS verificable. Ejecutamos tres servicios ECS con Service Connect, un Collector por tarea y exportación a X-Ray/CloudWatch. Tras los experimentos conservamos A/B en `api:chaos-latency-v1`, data-service en `api:chaos-errors-v2` y los Collectors en `collector:traces-v2`, con ambas inyecciones desactivadas. Mantenemos `api:initial` sin sobrescribir; utilizamos el exporter `awsxray`, sin modificar el destino regional X-Ray. En la [prueba privada temporal](infra/aws/SYNTHETIC_TEST.md) confirmamos HTTP 201, lectura persistida HTTP 200, la traza A → B → data-service → PostgreSQL y logs correlacionados de los tres servicios. Retiramos sus recursos temporales; conservamos las aplicaciones y RDS activos, por lo que generan costos. Aceptamos la creación automática de tablas y el usuario administrador solo como concesiones del laboratorio; para un despliegue productivo necesitamos un usuario limitado y migraciones controladas.

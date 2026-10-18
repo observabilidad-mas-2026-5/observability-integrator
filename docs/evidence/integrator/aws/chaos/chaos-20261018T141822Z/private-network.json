@@ -1,0 +1,51 @@
+{
+  "service_a_ingress": [
+    [
+      {
+        "IpProtocol": "tcp",
+        "FromPort": 8000,
+        "ToPort": 8000,
+        "UserIdGroupPairs": [
+          {
+            "UserId": "467866783326",
+            "GroupId": "sg-0530e9a1a93838322"
+          }
+        ],
+        "IpRanges": [],
+        "Ipv6Ranges": [],
+        "PrefixListIds": []
+      }
+    ]
+  ],
+  "client_ingress": [],
+  "client_egress": [
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 8000,
+      "ToPort": 8000,
+      "UserIdGroupPairs": [
+        {
+          "UserId": "467866783326",
+          "GroupId": "sg-03aaee4d8a3ba1cae"
+        }
+      ],
+      "IpRanges": [],
+      "Ipv6Ranges": [],
+      "PrefixListIds": []
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 443,
+      "ToPort": 443,
+      "UserIdGroupPairs": [],
+      "IpRanges": [
+        {
+          "Description": "ECR API, ECR layers in S3 and CloudWatch Logs via HTTPS",
+          "CidrIp": "0.0.0.0/0"
+        }
+      ],
+      "Ipv6Ranges": [],
+      "PrefixListIds": []
+    }
+  ]
+}

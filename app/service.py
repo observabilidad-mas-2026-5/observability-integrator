@@ -3,6 +3,7 @@ import os
 import httpx
 from fastapi import HTTPException
 from .telemetry import tracer, logger
+from .chaos import forwarding_headers
 
 REMOTE = os.getenv("SERVICE_B_URL", "").rstrip("/")
 _client = httpx.Client(timeout=httpx.Timeout(10, connect=2))
@@ -10,7 +11,7 @@ _client = httpx.Client(timeout=httpx.Timeout(10, connect=2))
 def remote(method, path, payload=None):
     with tracer.start_as_current_span({"POST": "credit.create", "PUT": "credit.status_update", "GET": "credit.read"}[method]):
         try:
-            response = _client.request(method, REMOTE + path, json=payload)
+            response = _client.request(method, REMOTE + path, json=payload, headers=forwarding_headers())
             if response.status_code == 404:
                 return None
             response.raise_for_status()

@@ -1,0 +1,70 @@
+{
+  "event": "chaos.summary",
+  "experiment": "data-service-errors-10pct-v1",
+  "environment": "aws",
+  "requested_error_percent": 10,
+  "schedule": "deterministic: each tenth eligible data-service attempt; proxy retries may hide failures from the client",
+  "rps_limit": 2.5,
+  "phase_seconds": 180.0,
+  "phases": {
+    "baseline": {
+      "started_utc": "2026-10-18T15:38:10.484326+00:00",
+      "ended_utc": "2026-10-18T15:41:10.484551+00:00",
+      "requests": 450,
+      "errors": 0,
+      "error_rate": 0.0,
+      "p50_ms": 18.625264000007746,
+      "p95_ms": 47.28065299997297,
+      "p99_ms": 87.62721900001225,
+      "slo_bad_requests": 0,
+      "allowed_bad_requests": 2.2500000000000018,
+      "window_budget_consumption_percent": 0.0,
+      "burn_rate": 0.0,
+      "http_status_counts": {
+        "200": 450
+      }
+    },
+    "injection": {
+      "started_utc": "2026-10-18T15:41:10.484997+00:00",
+      "ended_utc": "2026-10-18T15:44:10.485224+00:00",
+      "requests": 450,
+      "errors": 0,
+      "error_rate": 0.0,
+      "p50_ms": 18.4214849999762,
+      "p95_ms": 47.78759500004526,
+      "p99_ms": 81.38972700004388,
+      "slo_bad_requests": 0,
+      "allowed_bad_requests": 2.2500000000000018,
+      "window_budget_consumption_percent": 0.0,
+      "burn_rate": 0.0,
+      "http_status_counts": {
+        "200": 450
+      }
+    },
+    "recovery": {
+      "started_utc": "2026-10-18T15:44:10.485672+00:00",
+      "ended_utc": "2026-10-18T15:47:10.485958+00:00",
+      "requests": 450,
+      "errors": 0,
+      "error_rate": 0.0,
+      "p50_ms": 18.055702999959067,
+      "p95_ms": 33.88534499993057,
+      "p99_ms": 69.39190000002782,
+      "slo_bad_requests": 0,
+      "allowed_bad_requests": 2.2500000000000018,
+      "window_budget_consumption_percent": 0.0,
+      "burn_rate": 0.0,
+      "http_status_counts": {
+        "200": 450
+      }
+    }
+  },
+  "application_id": "c32d2d6c-b73b-4a32-ab55-bbb23da6c616",
+  "data_writes": 0,
+  "mttd_alert_seconds": null,
+  "slo": {
+    "target": 0.995,
+    "latency_threshold_ms": 1000,
+    "scope": "GET requests in this experiment, not monthly budget"
+  }
+}

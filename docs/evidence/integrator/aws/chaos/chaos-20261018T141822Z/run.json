@@ -1,0 +1,13 @@
+{
+  "run_id": "chaos-20261018T141822Z",
+  "started_utc": "2026-10-18T14:18:22.693668+00:00",
+  "deadline_epoch": 1792334802,
+  "region": "us-east-2",
+  "task_arn": "arn:aws:ecs:us-east-2:467866783326:task/observability-integrator/23a1cbea6def4d7db35bcc2bc201795b",
+  "task_definition": "arn:aws:ecs:us-east-2:467866783326:task-definition/observability-integrator-synthetic-test:2",
+  "temporary_group": "sg-0530e9a1a93838322",
+  "injection_verified_observed_utc": "2026-10-18T14:27:55.898983+00:00",
+  "fault_started_utc": "2026-10-18T14:27:26.317000+00:00",
+  "completed_utc": "2026-10-18T14:35:14.445715+00:00",
+  "injection_verified": true
+}

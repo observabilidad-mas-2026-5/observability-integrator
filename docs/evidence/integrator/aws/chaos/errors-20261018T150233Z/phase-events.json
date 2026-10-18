@@ -1,0 +1,75 @@
+[
+  {
+    "event": "chaos.phase.started",
+    "phase": "baseline",
+    "utc": "2026-10-18T15:09:05.167922+00:00"
+  },
+  {
+    "event": "chaos.phase.finished",
+    "phase": "baseline",
+    "started_utc": "2026-10-18T15:09:05.167922+00:00",
+    "ended_utc": "2026-10-18T15:12:05.168195+00:00",
+    "requests": 540,
+    "errors": 0,
+    "error_rate": 0.0,
+    "p50_ms": 18.472121000002062,
+    "p95_ms": 59.73103599995966,
+    "p99_ms": 84.34455100001514,
+    "slo_bad_requests": 0,
+    "allowed_bad_requests": 2.7000000000000024,
+    "window_budget_consumption_percent": 0.0,
+    "burn_rate": 0.0,
+    "http_status_counts": {
+      "200": 540
+    }
+  },
+  {
+    "event": "chaos.phase.started",
+    "phase": "injection",
+    "utc": "2026-10-18T15:12:05.168720+00:00"
+  },
+  {
+    "event": "chaos.phase.finished",
+    "phase": "injection",
+    "started_utc": "2026-10-18T15:12:05.168720+00:00",
+    "ended_utc": "2026-10-18T15:15:05.199359+00:00",
+    "requests": 540,
+    "errors": 54,
+    "error_rate": 0.1,
+    "p50_ms": 19.490873999984615,
+    "p95_ms": 232.94697699998324,
+    "p99_ms": 281.52113900000586,
+    "slo_bad_requests": 54,
+    "allowed_bad_requests": 2.7000000000000024,
+    "window_budget_consumption_percent": 1999.9999999999982,
+    "burn_rate": 19.999999999999982,
+    "http_status_counts": {
+      "200": 486,
+      "503": 54
+    }
+  },
+  {
+    "event": "chaos.phase.started",
+    "phase": "recovery",
+    "utc": "2026-10-18T15:15:05.200007+00:00"
+  },
+  {
+    "event": "chaos.phase.finished",
+    "phase": "recovery",
+    "started_utc": "2026-10-18T15:15:05.200007+00:00",
+    "ended_utc": "2026-10-18T15:18:05.200290+00:00",
+    "requests": 540,
+    "errors": 0,
+    "error_rate": 0.0,
+    "p50_ms": 19.287373999986812,
+    "p95_ms": 58.29095199999301,
+    "p99_ms": 76.63094499991985,
+    "slo_bad_requests": 0,
+    "allowed_bad_requests": 2.7000000000000024,
+    "window_budget_consumption_percent": 0.0,
+    "burn_rate": 0.0,
+    "http_status_counts": {
+      "200": 540
+    }
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "eligible_physical_attempts": 500.0,
+  "injected_errors": 50.0,
+  "server_error_rate": 0.1,
+  "unique_client_requests_affected": 50,
+  "client_final_errors": 0,
+  "target": 0.995,
+  "server_window_budget_consumption_percent": 2000.0,
+  "scope": "Data-service marked attempts including proxy retries; distinct from the end-to-end client SLO"
+}
