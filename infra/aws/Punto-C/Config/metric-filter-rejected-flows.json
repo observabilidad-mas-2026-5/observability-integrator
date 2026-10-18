@@ -1,0 +1,13 @@
+{
+  "filterName": "ModuleC-RejectedFlowRecords",
+  "logGroupName": "/aws/vpc/observability-integrator/flow-logs",
+  "filterPattern": "[version, account, eni, source, destination, srcport, destport, protocol, packets, bytes, windowstart, windowend, action=\"REJECT\", flowlogstatus]",
+  "metricTransformations": [
+    {
+      "metricNamespace": "ObservabilityIntegrator/Security",
+      "metricName": "RejectedFlowRecords",
+      "metricValue": "1",
+      "defaultValue": 0
+    }
+  ]
+}
