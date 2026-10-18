@@ -1,1 +1,4 @@
+parse @message "* * * * * * * * * * * * * *" as version, account, interfaceId, srcAddr, dstAddr, srcPort, dstPort, protocol, packets, bytes, startTime, endTime, action, logStatus
+| stats count(*) as flowRecords by action
+| sort flowRecords desc
 
