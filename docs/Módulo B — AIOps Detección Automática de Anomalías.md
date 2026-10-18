@@ -1,6 +1,6 @@
 
-cat > docs/MODULE_B_AWS_ALERTING.md <<'EOF'
-# Módulo B. Detección de anomalías y enriquecimiento de alertas en AWS
+docs/MODULE_B_AWS_ALERTING.md 
+# Módulo B — AIOps: Detección Automática de Anomalías
 
 ## 1. Objetivo
 
@@ -207,7 +207,7 @@ Las capturas y resultados asociados a este módulo se almacenan en:
 
 Evidencias recomendadas para conservar:
 
-1. `01-cloudwatch-p99-alarm.png`: configuración de la alarma de latencia p99.
+1. ![Resultado de la prueba sintética de Lambda](evidence/integrator/aws/punto-b/01-cloudwatch-p99-alarm.png)
 2. `02-cloudwatch-anomaly-alarm.png`: configuración y estado de la alarma de anomalías.
 3. `03-cloudwatch-composite-alarm.png`: regla de correlación de la alarma compuesta.
 4. `04-sns-confirmation.png`: suscripción confirmada o correo de prueba recibido.
@@ -217,8 +217,4 @@ Evidencias recomendadas para conservar:
 8. `08-operational-errors-query.png`: consulta que excluye eventos de caos y devuelve
    cero coincidencias.
 
-Las imágenes deben corresponder a resultados reales de la implementación.
-No se deben crear capturas simuladas ni presentar una prueba sintética como
-si fuera un incidente real.
-EOF
 
