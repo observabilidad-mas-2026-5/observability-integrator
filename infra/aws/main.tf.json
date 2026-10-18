@@ -10,33 +10,65 @@
   },
   "provider": {
     "aws": {
-      "region": "${var.region}"
+      "region": "${var.region}",
+      "default_tags": [
+        {
+          "tags": {
+            "Project": "${var.name}",
+            "Environment": "lab",
+            "ManagedBy": "Terraform"
+          }
+        }
+      ]
     }
   },
   "variable": {
     "region": {
       "type": "string",
-      "default": "us-east-1"
+      "default": "us-east-2",
+      "validation": {
+        "condition": "${var.region == \"us-east-2\"}",
+        "error_message": "This laboratory deploys exclusively to Ohio (us-east-2)."
+      }
     },
     "name": {
       "type": "string",
-      "default": "otel-credit-lab"
+      "default": "observability-integrator",
+      "validation": {
+        "condition": "${can(regex(\"^observability-integrator(-[a-z0-9]+)?$\", var.name))}",
+        "error_message": "Use the integrator namespace, optionally with a short suffix."
+      }
     },
     "allowed_cidr": {
       "type": "string",
-      "description": "Your IPv4 /32; API and UIs are restricted to this CIDR.",
+      "default": null,
+      "description": "Optional operator IPv4 /32 for synthetic HTTP access on port 8000. Null closes Internet ingress.",
       "validation": {
-        "condition": "${can(cidrhost(var.allowed_cidr,0)) && endswith(var.allowed_cidr,\"/32\")}",
-        "error_message": "Use only your IPv4 /32 for the lab."
+        "condition": "${var.allowed_cidr == null ? true : can(cidrnetmask(var.allowed_cidr)) && endswith(var.allowed_cidr, \"/32\")}",
+        "error_message": "Use one IPv4 /32 or null."
       }
     },
-    "images": {
-      "type": "map(string)",
-      "description": "Immutable registry image references: api,collector,prometheus,loki,grafana,gateway."
-    },
-    "grafana_secret_arn": {
+    "image_tag": {
       "type": "string",
-      "description": "Existing Secrets Manager secret containing only the Grafana password."
+      "default": "initial",
+      "description": "Immutable release tag published to both ECR repositories before starting ECS.",
+      "validation": {
+        "condition": "${can(regex(\"^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$\", var.image_tag)) && var.image_tag != \"latest\"}",
+        "error_message": "Use an explicit release tag, not latest."
+      }
+    },
+    "deploy_services": {
+      "type": "bool",
+      "default": false,
+      "description": "False sets ECS desired_count=0. RDS and other infrastructure still incur charges."
+    },
+    "log_retention_days": {
+      "type": "number",
+      "default": 3,
+      "validation": {
+        "condition": "${contains([1,3,5,7,14],var.log_retention_days)}",
+        "error_message": "Choose 1, 3, 5, 7 or 14 days."
+      }
     }
   },
   "data": {
@@ -47,260 +79,360 @@
     }
   },
   "locals": {
-    "containers": [
-      {
-        "name": "service-a",
-        "image": "${var.images[\"api\"]}",
-        "essential": true,
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "${aws_cloudwatch_log_group.lab.name}",
-            "awslogs-region": "${var.region}",
-            "awslogs-stream-prefix": "service-a"
-          }
-        },
-        "command": [
-          "uvicorn",
-          "app.main:app",
-          "--host",
-          "0.0.0.0",
-          "--port",
-          "8000"
-        ],
-        "healthCheck": {
-          "command": [
-            "CMD",
-            "python",
-            "-c",
-            "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
-          ],
-          "interval": 10,
-          "timeout": 5,
-          "retries": 3,
-          "startPeriod": 60
-        },
-        "dependsOn": [
-          {
-            "containerName": "service-b",
-            "condition": "HEALTHY"
-          }
-        ],
-        "environment": [
-          {
-            "name": "OTEL_ENABLED",
-            "value": "true"
-          },
-          {
-            "name": "OTEL_SERVICE_NAME",
-            "value": "service-a"
-          },
-          {
-            "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
-            "value": "http://127.0.0.1:4318"
-          },
-          {
-            "name": "SERVICE_B_URL",
-            "value": "http://127.0.0.1:8001"
-          }
-        ]
+    "services": {
+      "service-a": {
+        "module": "app.main:app",
+        "port": 8000
       },
-      {
-        "name": "service-b",
-        "image": "${var.images[\"api\"]}",
-        "essential": true,
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "${aws_cloudwatch_log_group.lab.name}",
-            "awslogs-region": "${var.region}",
-            "awslogs-stream-prefix": "service-b"
-          }
-        },
-        "command": [
-          "uvicorn",
-          "app.storage:app",
-          "--host",
-          "0.0.0.0",
-          "--port",
-          "8001"
-        ],
-        "healthCheck": {
-          "command": [
-            "CMD",
-            "python",
-            "-c",
-            "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"
-          ],
-          "interval": 10,
-          "timeout": 5,
-          "retries": 3,
-          "startPeriod": 60
-        },
-        "secrets": [
-          {
-            "name": "DATABASE_PASSWORD",
-            "valueFrom": "${aws_db_instance.lab.master_user_secret[0].secret_arn}:password::"
-          }
-        ],
-        "environment": [
-          {
-            "name": "OTEL_ENABLED",
-            "value": "true"
-          },
-          {
-            "name": "OTEL_SERVICE_NAME",
-            "value": "service-b"
-          },
-          {
-            "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
-            "value": "http://127.0.0.1:4318"
-          },
-          {
-            "name": "DATABASE_HOST",
-            "value": "${aws_db_instance.lab.address}"
-          },
-          {
-            "name": "DATABASE_USER",
-            "value": "lab"
-          },
-          {
-            "name": "DATABASE_NAME",
-            "value": "credits"
-          }
-        ]
+      "service-b": {
+        "module": "app.storage:app",
+        "port": 8001
       },
-      {
-        "name": "collector",
-        "image": "${var.images[\"collector\"]}",
-        "essential": true,
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "${aws_cloudwatch_log_group.lab.name}",
-            "awslogs-region": "${var.region}",
-            "awslogs-stream-prefix": "collector"
-          }
-        }
-      },
-      {
-        "name": "jaeger",
-        "image": "jaegertracing/all-in-one:1.64.0",
-        "essential": true,
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "${aws_cloudwatch_log_group.lab.name}",
-            "awslogs-region": "${var.region}",
-            "awslogs-stream-prefix": "jaeger"
-          }
-        },
-        "environment": [
-          {
-            "name": "COLLECTOR_OTLP_ENABLED",
-            "value": "true"
-          },
-          {
-            "name": "QUERY_BASE_PATH",
-            "value": "/jaeger"
-          }
-        ],
-        "command": [
-          "--collector.otlp.grpc.host-port=0.0.0.0:14317",
-          "--collector.otlp.http.host-port=0.0.0.0:14318"
-        ]
-      },
-      {
-        "name": "prometheus",
-        "image": "${var.images[\"prometheus\"]}",
-        "essential": true,
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "${aws_cloudwatch_log_group.lab.name}",
-            "awslogs-region": "${var.region}",
-            "awslogs-stream-prefix": "prometheus"
-          }
-        }
-      },
-      {
-        "name": "loki",
-        "image": "${var.images[\"loki\"]}",
-        "essential": true,
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "${aws_cloudwatch_log_group.lab.name}",
-            "awslogs-region": "${var.region}",
-            "awslogs-stream-prefix": "loki"
-          }
-        }
-      },
-      {
-        "name": "grafana",
-        "image": "${var.images[\"grafana\"]}",
-        "essential": true,
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "${aws_cloudwatch_log_group.lab.name}",
-            "awslogs-region": "${var.region}",
-            "awslogs-stream-prefix": "grafana"
-          }
-        },
-        "secrets": [
-          {
-            "name": "GF_SECURITY_ADMIN_PASSWORD",
-            "valueFrom": "${var.grafana_secret_arn}"
-          }
-        ],
-        "environment": [
-          {
-            "name": "GF_SECURITY_ADMIN_USER",
-            "value": "lab"
-          },
-          {
-            "name": "GF_SERVER_ROOT_URL",
-            "value": "%(protocol)s://%(domain)s/grafana/"
-          },
-          {
-            "name": "GF_SERVER_SERVE_FROM_SUB_PATH",
-            "value": "true"
-          }
-        ]
-      },
-      {
-        "name": "gateway",
-        "image": "${var.images[\"gateway\"]}",
-        "essential": true,
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "${aws_cloudwatch_log_group.lab.name}",
-            "awslogs-region": "${var.region}",
-            "awslogs-stream-prefix": "gateway"
-          }
-        },
-        "portMappings": [
-          {
-            "containerPort": 8080,
-            "hostPort": 8080,
-            "protocol": "tcp"
-          }
-        ],
-        "dependsOn": [
-          {
-            "containerName": "service-a",
-            "condition": "HEALTHY"
-          }
-        ]
+      "data-service": {
+        "module": "app.data_service:app",
+        "port": 8002
       }
-    ]
+    },
+    "containers": {
+      "service-a": [
+        {
+          "name": "service-a",
+          "image": "${aws_ecr_repository.images[\"api\"].repository_url}:${var.image_tag}",
+          "essential": true,
+          "cpu": 128,
+          "memoryReservation": 256,
+          "readonlyRootFilesystem": true,
+          "command": [
+            "uvicorn",
+            "app.main:app",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            "8000"
+          ],
+          "portMappings": [
+            {
+              "name": "http",
+              "containerPort": 8000,
+              "protocol": "tcp",
+              "appProtocol": "http"
+            }
+          ],
+          "healthCheck": {
+            "command": [
+              "CMD",
+              "python",
+              "-c",
+              "import urllib.request; urllib.request.urlopen('http://localhost:8000/health',timeout=3)"
+            ],
+            "interval": 15,
+            "timeout": 5,
+            "retries": 5,
+            "startPeriod": 120
+          },
+          "environment": [
+            {
+              "name": "OTEL_ENABLED",
+              "value": "true"
+            },
+            {
+              "name": "OTEL_SERVICE_NAME",
+              "value": "service-a"
+            },
+            {
+              "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+              "value": "http://127.0.0.1:4318"
+            },
+            {
+              "name": "PYTHONDONTWRITEBYTECODE",
+              "value": "1"
+            },
+            {
+              "name": "SERVICE_B_URL",
+              "value": "http://service-b:8001"
+            },
+            {
+              "name": "OTEL_RESOURCE_ATTRIBUTES",
+              "value": "service.namespace=${var.name}"
+            }
+          ],
+          "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+              "awslogs-group": "${aws_cloudwatch_log_group.runtime.name}",
+              "awslogs-region": "${var.region}",
+              "awslogs-stream-prefix": "service-a"
+            }
+          }
+        },
+        {
+          "name": "collector",
+          "image": "${aws_ecr_repository.images[\"collector\"].repository_url}:${var.image_tag}",
+          "essential": true,
+          "cpu": 128,
+          "memoryReservation": 256,
+          "readonlyRootFilesystem": true,
+          "environment": [
+            {
+              "name": "AWS_REGION",
+              "value": "${var.region}"
+            },
+            {
+              "name": "OTEL_LOG_GROUP",
+              "value": "${aws_cloudwatch_log_group.otel.name}"
+            },
+            {
+              "name": "OTEL_LOG_STREAM",
+              "value": "service-a"
+            }
+          ],
+          "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+              "awslogs-group": "${aws_cloudwatch_log_group.runtime.name}",
+              "awslogs-region": "${var.region}",
+              "awslogs-stream-prefix": "service-a-collector"
+            }
+          }
+        }
+      ],
+      "service-b": [
+        {
+          "name": "service-b",
+          "image": "${aws_ecr_repository.images[\"api\"].repository_url}:${var.image_tag}",
+          "essential": true,
+          "cpu": 128,
+          "memoryReservation": 256,
+          "readonlyRootFilesystem": true,
+          "command": [
+            "uvicorn",
+            "app.storage:app",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            "8001"
+          ],
+          "portMappings": [
+            {
+              "name": "http",
+              "containerPort": 8001,
+              "protocol": "tcp",
+              "appProtocol": "http"
+            }
+          ],
+          "healthCheck": {
+            "command": [
+              "CMD",
+              "python",
+              "-c",
+              "import urllib.request; urllib.request.urlopen('http://localhost:8001/health',timeout=3)"
+            ],
+            "interval": 15,
+            "timeout": 5,
+            "retries": 5,
+            "startPeriod": 120
+          },
+          "environment": [
+            {
+              "name": "OTEL_ENABLED",
+              "value": "true"
+            },
+            {
+              "name": "OTEL_SERVICE_NAME",
+              "value": "service-b"
+            },
+            {
+              "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+              "value": "http://127.0.0.1:4318"
+            },
+            {
+              "name": "PYTHONDONTWRITEBYTECODE",
+              "value": "1"
+            },
+            {
+              "name": "DATA_SERVICE_URL",
+              "value": "http://data-service:8002"
+            },
+            {
+              "name": "OTEL_RESOURCE_ATTRIBUTES",
+              "value": "service.namespace=${var.name}"
+            }
+          ],
+          "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+              "awslogs-group": "${aws_cloudwatch_log_group.runtime.name}",
+              "awslogs-region": "${var.region}",
+              "awslogs-stream-prefix": "service-b"
+            }
+          }
+        },
+        {
+          "name": "collector",
+          "image": "${aws_ecr_repository.images[\"collector\"].repository_url}:${var.image_tag}",
+          "essential": true,
+          "cpu": 128,
+          "memoryReservation": 256,
+          "readonlyRootFilesystem": true,
+          "environment": [
+            {
+              "name": "AWS_REGION",
+              "value": "${var.region}"
+            },
+            {
+              "name": "OTEL_LOG_GROUP",
+              "value": "${aws_cloudwatch_log_group.otel.name}"
+            },
+            {
+              "name": "OTEL_LOG_STREAM",
+              "value": "service-b"
+            }
+          ],
+          "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+              "awslogs-group": "${aws_cloudwatch_log_group.runtime.name}",
+              "awslogs-region": "${var.region}",
+              "awslogs-stream-prefix": "service-b-collector"
+            }
+          }
+        }
+      ],
+      "data-service": [
+        {
+          "name": "data-service",
+          "image": "${aws_ecr_repository.images[\"api\"].repository_url}:${var.image_tag}",
+          "essential": true,
+          "cpu": 128,
+          "memoryReservation": 256,
+          "readonlyRootFilesystem": true,
+          "command": [
+            "uvicorn",
+            "app.data_service:app",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            "8002"
+          ],
+          "portMappings": [
+            {
+              "name": "http",
+              "containerPort": 8002,
+              "protocol": "tcp",
+              "appProtocol": "http"
+            }
+          ],
+          "healthCheck": {
+            "command": [
+              "CMD",
+              "python",
+              "-c",
+              "import urllib.request; urllib.request.urlopen('http://localhost:8002/health',timeout=3)"
+            ],
+            "interval": 15,
+            "timeout": 5,
+            "retries": 5,
+            "startPeriod": 120
+          },
+          "environment": [
+            {
+              "name": "OTEL_ENABLED",
+              "value": "true"
+            },
+            {
+              "name": "OTEL_SERVICE_NAME",
+              "value": "data-service"
+            },
+            {
+              "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+              "value": "http://127.0.0.1:4318"
+            },
+            {
+              "name": "PYTHONDONTWRITEBYTECODE",
+              "value": "1"
+            },
+            {
+              "name": "DATABASE_HOST",
+              "value": "${aws_db_instance.lab.address}"
+            },
+            {
+              "name": "DATABASE_PORT",
+              "value": "5432"
+            },
+            {
+              "name": "DATABASE_USER",
+              "value": "lab"
+            },
+            {
+              "name": "DATABASE_NAME",
+              "value": "credits"
+            },
+            {
+              "name": "DATABASE_SSLMODE",
+              "value": "verify-full"
+            },
+            {
+              "name": "DATABASE_SSLROOTCERT",
+              "value": "/etc/rds/us-east-2-bundle.pem"
+            },
+            {
+              "name": "OTEL_RESOURCE_ATTRIBUTES",
+              "value": "service.namespace=${var.name}"
+            }
+          ],
+          "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+              "awslogs-group": "${aws_cloudwatch_log_group.runtime.name}",
+              "awslogs-region": "${var.region}",
+              "awslogs-stream-prefix": "data-service"
+            }
+          },
+          "secrets": [
+            {
+              "name": "DATABASE_PASSWORD",
+              "valueFrom": "${aws_db_instance.lab.master_user_secret[0].secret_arn}:password::"
+            }
+          ]
+        },
+        {
+          "name": "collector",
+          "image": "${aws_ecr_repository.images[\"collector\"].repository_url}:${var.image_tag}",
+          "essential": true,
+          "cpu": 128,
+          "memoryReservation": 256,
+          "readonlyRootFilesystem": true,
+          "environment": [
+            {
+              "name": "AWS_REGION",
+              "value": "${var.region}"
+            },
+            {
+              "name": "OTEL_LOG_GROUP",
+              "value": "${aws_cloudwatch_log_group.otel.name}"
+            },
+            {
+              "name": "OTEL_LOG_STREAM",
+              "value": "data-service"
+            }
+          ],
+          "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+              "awslogs-group": "${aws_cloudwatch_log_group.runtime.name}",
+              "awslogs-region": "${var.region}",
+              "awslogs-stream-prefix": "data-service-collector"
+            }
+          }
+        }
+      ]
+    }
   },
   "resource": {
     "aws_vpc": {
       "lab": {
-        "cidr_block": "10.42.0.0/16",
+        "cidr_block": "10.52.0.0/16",
+        "enable_dns_support": true,
         "enable_dns_hostnames": true,
         "tags": {
           "Name": "${var.name}"
@@ -313,49 +445,143 @@
       }
     },
     "aws_subnet": {
-      "public": {
+      "tasks": {
         "vpc_id": "${aws_vpc.lab.id}",
-        "cidr_block": "10.42.0.0/24",
-        "availability_zone": "${data.aws_availability_zones.available.names[0]}"
+        "cidr_block": "10.52.0.0/24",
+        "availability_zone": "${data.aws_availability_zones.available.names[0]}",
+        "tags": {
+          "Name": "${var.name}-tasks"
+        }
       },
-      "db_a": {
+      "database": {
+        "for_each": {
+          "a": 1,
+          "b": 2
+        },
         "vpc_id": "${aws_vpc.lab.id}",
-        "cidr_block": "10.42.1.0/24",
-        "availability_zone": "${data.aws_availability_zones.available.names[0]}"
-      },
-      "db_b": {
-        "vpc_id": "${aws_vpc.lab.id}",
-        "cidr_block": "10.42.2.0/24",
-        "availability_zone": "${data.aws_availability_zones.available.names[1]}"
+        "cidr_block": "10.52.${each.value}.0/24",
+        "availability_zone": "${data.aws_availability_zones.available.names[each.value - 1]}",
+        "tags": {
+          "Name": "${var.name}-db-${each.key}"
+        }
       }
     },
     "aws_route_table": {
-      "public": {
+      "tasks": {
         "vpc_id": "${aws_vpc.lab.id}"
+      },
+      "database": {
+        "vpc_id": "${aws_vpc.lab.id}"
+      }
+    },
+    "aws_route": {
+      "internet": {
+        "route_table_id": "${aws_route_table.tasks.id}",
+        "destination_cidr_block": "0.0.0.0/0",
+        "gateway_id": "${aws_internet_gateway.lab.id}"
       }
     },
     "aws_route_table_association": {
-      "public": {
-        "subnet_id": "${aws_subnet.public.id}",
-        "route_table_id": "${aws_route_table.public.id}"
+      "tasks": {
+        "subnet_id": "${aws_subnet.tasks.id}",
+        "route_table_id": "${aws_route_table.tasks.id}"
+      },
+      "database": {
+        "for_each": "${aws_subnet.database}",
+        "subnet_id": "${each.value.id}",
+        "route_table_id": "${aws_route_table.database.id}"
       }
     },
     "aws_security_group": {
-      "task": {
-        "name": "${var.name}-task",
+      "service": {
+        "for_each": "${local.services}",
+        "name": "${var.name}-${each.key}",
         "vpc_id": "${aws_vpc.lab.id}"
       },
-      "db": {
-        "name": "${var.name}-db",
+      "database": {
+        "name": "${var.name}-database",
         "vpc_id": "${aws_vpc.lab.id}"
+      }
+    },
+    "aws_vpc_security_group_ingress_rule": {
+      "api": {
+        "count": "${var.allowed_cidr == null ? 0 : 1}",
+        "security_group_id": "${aws_security_group.service[\"service-a\"].id}",
+        "cidr_ipv4": "${var.allowed_cidr}",
+        "from_port": 8000,
+        "to_port": 8000,
+        "ip_protocol": "tcp",
+        "description": "Synthetic tests from one operator IPv4"
+      },
+      "service_b": {
+        "security_group_id": "${aws_security_group.service[\"service-b\"].id}",
+        "referenced_security_group_id": "${aws_security_group.service[\"service-a\"].id}",
+        "from_port": 8001,
+        "to_port": 8001,
+        "ip_protocol": "tcp"
+      },
+      "data_service": {
+        "security_group_id": "${aws_security_group.service[\"data-service\"].id}",
+        "referenced_security_group_id": "${aws_security_group.service[\"service-b\"].id}",
+        "from_port": 8002,
+        "to_port": 8002,
+        "ip_protocol": "tcp"
+      },
+      "postgres": {
+        "security_group_id": "${aws_security_group.database.id}",
+        "referenced_security_group_id": "${aws_security_group.service[\"data-service\"].id}",
+        "from_port": 5432,
+        "to_port": 5432,
+        "ip_protocol": "tcp"
+      }
+    },
+    "aws_vpc_security_group_egress_rule": {
+      "service_b": {
+        "security_group_id": "${aws_security_group.service[\"service-a\"].id}",
+        "referenced_security_group_id": "${aws_security_group.service[\"service-b\"].id}",
+        "from_port": 8001,
+        "to_port": 8001,
+        "ip_protocol": "tcp"
+      },
+      "data_service": {
+        "security_group_id": "${aws_security_group.service[\"service-b\"].id}",
+        "referenced_security_group_id": "${aws_security_group.service[\"data-service\"].id}",
+        "from_port": 8002,
+        "to_port": 8002,
+        "ip_protocol": "tcp"
+      },
+      "postgres": {
+        "security_group_id": "${aws_security_group.service[\"data-service\"].id}",
+        "referenced_security_group_id": "${aws_security_group.database.id}",
+        "from_port": 5432,
+        "to_port": 5432,
+        "ip_protocol": "tcp"
+      },
+      "https": {
+        "for_each": "${local.services}",
+        "security_group_id": "${aws_security_group.service[each.key].id}",
+        "cidr_ipv4": "0.0.0.0/0",
+        "from_port": 443,
+        "to_port": 443,
+        "ip_protocol": "tcp",
+        "description": "TLS to ECR, telemetry APIs and Secrets Manager"
       }
     },
     "aws_db_subnet_group": {
       "lab": {
         "name": "${var.name}",
-        "subnet_ids": [
-          "${aws_subnet.db_a.id}",
-          "${aws_subnet.db_b.id}"
+        "subnet_ids": "${[for subnet in aws_subnet.database : subnet.id]}"
+      }
+    },
+    "aws_db_parameter_group": {
+      "lab": {
+        "name": "${var.name}",
+        "family": "postgres16",
+        "parameter": [
+          {
+            "name": "rds.force_ssl",
+            "value": "1"
+          }
         ]
       }
     },
@@ -371,21 +597,83 @@
         "username": "lab",
         "manage_master_user_password": true,
         "db_subnet_group_name": "${aws_db_subnet_group.lab.name}",
+        "parameter_group_name": "${aws_db_parameter_group.lab.name}",
         "vpc_security_group_ids": [
-          "${aws_security_group.db.id}"
+          "${aws_security_group.database.id}"
         ],
         "publicly_accessible": false,
         "multi_az": false,
+        "storage_encrypted": true,
         "backup_retention_period": 0,
         "skip_final_snapshot": true,
         "deletion_protection": false,
-        "storage_encrypted": true
+        "auto_minor_version_upgrade": true
+      }
+    },
+    "aws_ecr_repository": {
+      "images": {
+        "for_each": "${toset([\"api\",\"collector\"])}",
+        "name": "${var.name}/${each.key}",
+        "image_tag_mutability": "IMMUTABLE",
+        "force_delete": false,
+        "encryption_configuration": [
+          {
+            "encryption_type": "AES256"
+          }
+        ],
+        "image_scanning_configuration": [
+          {
+            "scan_on_push": true
+          }
+        ]
       }
     },
     "aws_cloudwatch_log_group": {
-      "lab": {
+      "runtime": {
         "name": "/ecs/${var.name}",
-        "retention_in_days": 3
+        "retention_in_days": "${var.log_retention_days}"
+      },
+      "otel": {
+        "name": "/ecs/${var.name}/otel",
+        "retention_in_days": "${var.log_retention_days}"
+      }
+    },
+    "aws_cloudwatch_log_stream": {
+      "otel": {
+        "for_each": "${local.services}",
+        "name": "${each.key}",
+        "log_group_name": "${aws_cloudwatch_log_group.otel.name}"
+      }
+    },
+    "aws_iam_role": {
+      "execution": {
+        "for_each": "${local.services}",
+        "name": "${var.name}-${each.key}-execution",
+        "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+      },
+      "telemetry": {
+        "for_each": "${local.services}",
+        "name": "${var.name}-${each.key}-telemetry",
+        "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+      }
+    },
+    "aws_iam_role_policy": {
+      "execution": {
+        "for_each": "${local.services}",
+        "name": "${var.name}-execution",
+        "role": "${aws_iam_role.execution[each.key].id}",
+        "policy": "${jsonencode({Version=\"2012-10-17\",Statement=[{Effect=\"Allow\",Action=[\"ecr:GetAuthorizationToken\"],Resource=\"*\"},{Effect=\"Allow\",Action=[\"ecr:BatchCheckLayerAvailability\",\"ecr:GetDownloadUrlForLayer\",\"ecr:BatchGetImage\"],Resource=[for repository in aws_ecr_repository.images:repository.arn]},{Effect=\"Allow\",Action=[\"logs:CreateLogStream\",\"logs:PutLogEvents\"],Resource=\"${aws_cloudwatch_log_group.runtime.arn}:*\"}]})}"
+      },
+      "database_secret": {
+        "name": "${var.name}-rds-password",
+        "role": "${aws_iam_role.execution[\"data-service\"].id}",
+        "policy": "${jsonencode({Version=\"2012-10-17\",Statement=[{Effect=\"Allow\",Action=[\"secretsmanager:GetSecretValue\"],Resource=aws_db_instance.lab.master_user_secret[0].secret_arn}]})}"
+      },
+      "telemetry": {
+        "for_each": "${local.services}",
+        "name": "${var.name}-telemetry",
+        "role": "${aws_iam_role.telemetry[each.key].id}",
+        "policy": "${jsonencode({Version=\"2012-10-17\",Statement=[{Effect=\"Allow\",Action=[\"xray:PutTraceSegments\",\"xray:PutTelemetryRecords\"],Resource=\"*\"},{Effect=\"Allow\",Action=[\"cloudwatch:PutMetricData\"],Resource=\"*\"},{Effect=\"Allow\",Action=[\"logs:PutLogEvents\"],Resource=aws_cloudwatch_log_stream.otel[each.key].arn}]})}"
       }
     },
     "aws_ecs_cluster": {
@@ -393,60 +681,49 @@
         "name": "${var.name}"
       }
     },
-    "aws_iam_role": {
-      "execution": {
-        "name": "${var.name}-execution",
-        "assume_role_policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Service\": \"ecs-tasks.amazonaws.com\"}, \"Action\": \"sts:AssumeRole\"}]}"
-      },
-      "task": {
-        "name": "${var.name}-task",
-        "assume_role_policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Service\": \"ecs-tasks.amazonaws.com\"}, \"Action\": \"sts:AssumeRole\"}]}"
-      }
-    },
-"aws_iam_role_policy_attachment": {
-  "execution": {
-    "role": "${aws_iam_role.execution.name}",
-    "policy_arn": "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-  },
-  "task": {
-    "role": "${aws_iam_role.task.name}",
-    "policy_arn": "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-  }
-},
-    "aws_iam_role_policy": {
-      "secrets": {
-        "role": "${aws_iam_role.execution.id}",
-        "policy": "${jsonencode({Version=\"2012-10-17\",Statement=[{Effect=\"Allow\",Action=[\"secretsmanager:GetSecretValue\"],Resource=[aws_db_instance.lab.master_user_secret[0].secret_arn,var.grafana_secret_arn]}]})}"
+    "aws_service_discovery_http_namespace": {
+      "lab": {
+        "name": "${var.name}"
       }
     },
     "aws_ecs_task_definition": {
-      "lab": {
-        "family": "${var.name}",
+      "service": {
+        "for_each": "${local.services}",
+        "family": "${var.name}-${each.key}",
         "network_mode": "awsvpc",
         "requires_compatibilities": [
           "FARGATE"
         ],
-        "cpu": "2048",
-        "memory": "4096",
-        "execution_role_arn": "${aws_iam_role.execution.arn}",
-        "task_role_arn": "${aws_iam_role.task.arn}",
-        "container_definitions": "${jsonencode(local.containers)}"
+        "cpu": "512",
+        "memory": "1024",
+        "execution_role_arn": "${aws_iam_role.execution[each.key].arn}",
+        "task_role_arn": "${aws_iam_role.telemetry[each.key].arn}",
+        "runtime_platform": [
+          {
+            "operating_system_family": "LINUX",
+            "cpu_architecture": "X86_64"
+          }
+        ],
+        "container_definitions": "${jsonencode(local.containers[each.key])}"
       }
     },
     "aws_ecs_service": {
-      "lab": {
-        "name": "${var.name}",
+      "service": {
+        "for_each": "${local.services}",
+        "name": "${var.name}-${each.key}",
         "cluster": "${aws_ecs_cluster.lab.id}",
-        "task_definition": "${aws_ecs_task_definition.lab.arn}",
-        "desired_count": 1,
+        "task_definition": "${aws_ecs_task_definition.service[each.key].arn}",
+        "desired_count": "${var.deploy_services ? 1 : 0}",
         "launch_type": "FARGATE",
         "platform_version": "1.4.0",
+        "deployment_minimum_healthy_percent": 0,
+        "deployment_maximum_percent": 100,
         "network_configuration": {
           "subnets": [
-            "${aws_subnet.public.id}"
+            "${aws_subnet.tasks.id}"
           ],
           "security_groups": [
-            "${aws_security_group.task.id}"
+            "${aws_security_group.service[each.key].id}"
           ],
           "assign_public_ip": true
         },
@@ -454,66 +731,71 @@
           "enable": true,
           "rollback": true
         },
-        "deployment_minimum_healthy_percent": 0,
-        "deployment_maximum_percent": 100,
+        "service_connect_configuration": {
+          "enabled": true,
+          "namespace": "${aws_service_discovery_http_namespace.lab.arn}",
+          "log_configuration": {
+            "log_driver": "awslogs",
+            "options": {
+              "awslogs-group": "${aws_cloudwatch_log_group.runtime.name}",
+              "awslogs-region": "${var.region}",
+              "awslogs-stream-prefix": "${each.key}-proxy"
+            }
+          },
+          "service": [
+            {
+              "port_name": "http",
+              "discovery_name": "${each.key}",
+              "client_alias": [
+                {
+                  "dns_name": "${each.key}",
+                  "port": "${each.value.port}"
+                }
+              ]
+            }
+          ]
+        },
         "depends_on": [
-          "aws_iam_role_policy_attachment.execution",
-          "aws_iam_role_policy.secrets",
+          "aws_iam_role_policy.execution",
+          "aws_iam_role_policy.database_secret",
+          "aws_iam_role_policy.telemetry",
           "aws_route.internet",
-          "aws_route_table_association.public",
-          "aws_vpc_security_group_egress_rule.task",
-          "aws_vpc_security_group_ingress_rule.postgres"
+          "aws_route_table_association.tasks",
+          "aws_vpc_security_group_ingress_rule.service_b",
+          "aws_vpc_security_group_ingress_rule.data_service",
+          "aws_vpc_security_group_ingress_rule.postgres",
+          "aws_vpc_security_group_egress_rule.https",
+          "aws_vpc_security_group_egress_rule.service_b",
+          "aws_vpc_security_group_egress_rule.data_service",
+          "aws_vpc_security_group_egress_rule.postgres"
         ]
-      }
-    },
-    "aws_ecr_repository": {
-      "images": {
-        "for_each": "${toset([\"api\",\"collector\",\"prometheus\",\"loki\",\"grafana\",\"gateway\"])}",
-        "name": "${var.name}/${each.key}",
-        "image_tag_mutability": "IMMUTABLE",
-        "force_delete": false
-      }
-    },
-    "aws_route": {
-      "internet": {
-        "route_table_id": "${aws_route_table.public.id}",
-        "destination_cidr_block": "0.0.0.0/0",
-        "gateway_id": "${aws_internet_gateway.lab.id}"
-      }
-    },
-    "aws_vpc_security_group_ingress_rule": {
-      "gateway": {
-        "security_group_id": "${aws_security_group.task.id}",
-        "cidr_ipv4": "${var.allowed_cidr}",
-        "from_port": 8080,
-        "to_port": 8080,
-        "ip_protocol": "tcp"
-      },
-      "postgres": {
-        "security_group_id": "${aws_security_group.db.id}",
-        "referenced_security_group_id": "${aws_security_group.task.id}",
-        "from_port": 5432,
-        "to_port": 5432,
-        "ip_protocol": "tcp"
-      }
-    },
-    "aws_vpc_security_group_egress_rule": {
-      "task": {
-        "security_group_id": "${aws_security_group.task.id}",
-        "cidr_ipv4": "0.0.0.0/0",
-        "ip_protocol": "-1"
       }
     }
   },
   "output": {
+    "region": {
+      "value": "${var.region}"
+    },
     "cluster": {
       "value": "${aws_ecs_cluster.lab.name}"
     },
     "ecr_urls": {
-      "value": "${{for k,v in aws_ecr_repository.images:k=>v.repository_url}}"
+      "value": "${{for key,repository in aws_ecr_repository.images:key=>repository.repository_url}}"
     },
-    "task_service": {
-      "value": "${aws_ecs_service.lab.name}"
+    "services": {
+      "value": "${{for key,service in aws_ecs_service.service:key=>service.name}}"
+    },
+    "log_groups": {
+      "value": {
+        "runtime": "${aws_cloudwatch_log_group.runtime.name}",
+        "otel": "${aws_cloudwatch_log_group.otel.name}"
+      }
+    },
+    "service_connect_namespace": {
+      "value": "${aws_service_discovery_http_namespace.lab.name}"
+    },
+    "database_endpoint": {
+      "value": "${aws_db_instance.lab.address}"
     }
   }
 }

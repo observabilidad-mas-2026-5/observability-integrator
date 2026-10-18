@@ -1,11 +1,10 @@
-region = "us-east-2"
-allowed_cidr = "YOUR_PUBLIC_IP/32"
-grafana_secret_arn = "arn:aws:secretsmanager:REGION:ACCOUNT:secret:EXISTING_SECRET"
-images = {
-  api = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/api:REVISION"
-  collector = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/collector:REVISION"
-  prometheus = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/prometheus:REVISION"
-  loki = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/loki:REVISION"
-  grafana = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/grafana:REVISION"
-  gateway = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/gateway:REVISION"
-}
+region          = "us-east-2"
+name            = "observability-integrator"
+image_tag       = "initial"
+deploy_services = false
+allowed_cidr    = null
+
+# Set your public IPv4 /32 only for synthetic HTTP tests on port 8000.
+# Keep deploy_services=false until both images exist in ECR with image_tag.
+# RDS is billable even with deploy_services=false.
+# Never put passwords, AWS keys or tokens in this file.

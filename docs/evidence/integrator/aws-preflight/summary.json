@@ -1,0 +1,243 @@
+{
+  "date": "2026-10-18",
+  "region": "us-east-2",
+  "scope": "Local preparation only; no AWS resources created or images pushed.",
+  "terraform": {
+    "fmt": "passed; inherited .tf.json format is not rewritten by terraform fmt",
+    "init_backend_false": "passed",
+    "validate": "passed",
+    "provider": "hashicorp/aws 6.68.0",
+    "plan": "not run: STS authentication returned InvalidClientTokenId; no authenticated plan exists"
+  },
+  "account": {
+    "authentication": "invalid token",
+    "plan_type": "unverified",
+    "remaining_credits": "unverified",
+    "service_eligibility_and_quotas": "unverified"
+  },
+  "collector": {
+    "without_credentials": "failed: SigV4 credential provider cannot resolve an ECS role in a local container",
+    "offline_validation": "passed with --network none and explicitly fictitious validation-only credentials; does not validate AWS authorization",
+    "aws_delivery": "not tested"
+  },
+  "images": {
+    "api": "built locally as observability-integrator-api:aws-preview",
+    "collector": "built locally as observability-integrator-collector:aws-preview",
+    "architecture": "linux/amd64",
+    "rds_ca": "Ohio public CA downloaded over HTTPS, parsed successfully; TLS verification and hostname verification enabled; no RDS connection tested",
+    "published_to_ecr": false
+  },
+  "inventory": {
+    "basis": "static expansion of Terraform configuration defaults, not a plan or proof of account resources",
+    "total": 55,
+    "resources": [
+      {
+        "type": "aws_vpc",
+        "name": "lab",
+        "instances": 1
+      },
+      {
+        "type": "aws_internet_gateway",
+        "name": "lab",
+        "instances": 1
+      },
+      {
+        "type": "aws_subnet",
+        "name": "tasks",
+        "instances": 1
+      },
+      {
+        "type": "aws_subnet",
+        "name": "database",
+        "instances": 2
+      },
+      {
+        "type": "aws_route_table",
+        "name": "tasks",
+        "instances": 1
+      },
+      {
+        "type": "aws_route_table",
+        "name": "database",
+        "instances": 1
+      },
+      {
+        "type": "aws_route",
+        "name": "internet",
+        "instances": 1
+      },
+      {
+        "type": "aws_route_table_association",
+        "name": "tasks",
+        "instances": 1
+      },
+      {
+        "type": "aws_route_table_association",
+        "name": "database",
+        "instances": 2
+      },
+      {
+        "type": "aws_security_group",
+        "name": "service",
+        "instances": 3
+      },
+      {
+        "type": "aws_security_group",
+        "name": "database",
+        "instances": 1
+      },
+      {
+        "type": "aws_vpc_security_group_ingress_rule",
+        "name": "api",
+        "instances": 0
+      },
+      {
+        "type": "aws_vpc_security_group_ingress_rule",
+        "name": "service_b",
+        "instances": 1
+      },
+      {
+        "type": "aws_vpc_security_group_ingress_rule",
+        "name": "data_service",
+        "instances": 1
+      },
+      {
+        "type": "aws_vpc_security_group_ingress_rule",
+        "name": "postgres",
+        "instances": 1
+      },
+      {
+        "type": "aws_vpc_security_group_egress_rule",
+        "name": "service_b",
+        "instances": 1
+      },
+      {
+        "type": "aws_vpc_security_group_egress_rule",
+        "name": "data_service",
+        "instances": 1
+      },
+      {
+        "type": "aws_vpc_security_group_egress_rule",
+        "name": "postgres",
+        "instances": 1
+      },
+      {
+        "type": "aws_vpc_security_group_egress_rule",
+        "name": "https",
+        "instances": 3
+      },
+      {
+        "type": "aws_db_subnet_group",
+        "name": "lab",
+        "instances": 1
+      },
+      {
+        "type": "aws_db_parameter_group",
+        "name": "lab",
+        "instances": 1
+      },
+      {
+        "type": "aws_db_instance",
+        "name": "lab",
+        "instances": 1
+      },
+      {
+        "type": "aws_ecr_repository",
+        "name": "images",
+        "instances": 2
+      },
+      {
+        "type": "aws_cloudwatch_log_group",
+        "name": "runtime",
+        "instances": 1
+      },
+      {
+        "type": "aws_cloudwatch_log_group",
+        "name": "otel",
+        "instances": 1
+      },
+      {
+        "type": "aws_cloudwatch_log_stream",
+        "name": "otel",
+        "instances": 3
+      },
+      {
+        "type": "aws_iam_role",
+        "name": "execution",
+        "instances": 3
+      },
+      {
+        "type": "aws_iam_role",
+        "name": "telemetry",
+        "instances": 3
+      },
+      {
+        "type": "aws_iam_role_policy",
+        "name": "execution",
+        "instances": 3
+      },
+      {
+        "type": "aws_iam_role_policy",
+        "name": "database_secret",
+        "instances": 1
+      },
+      {
+        "type": "aws_iam_role_policy",
+        "name": "telemetry",
+        "instances": 3
+      },
+      {
+        "type": "aws_ecs_cluster",
+        "name": "lab",
+        "instances": 1
+      },
+      {
+        "type": "aws_service_discovery_http_namespace",
+        "name": "lab",
+        "instances": 1
+      },
+      {
+        "type": "aws_ecs_task_definition",
+        "name": "service",
+        "instances": 3
+      },
+      {
+        "type": "aws_ecs_service",
+        "name": "service",
+        "instances": 3
+      }
+    ],
+    "with_operator_api_ingress": 56,
+    "ecs_desired_count_per_service": 0,
+    "when_enabled": {
+      "tasks": 3,
+      "vcpu": 1.5,
+      "memory_gib": 3,
+      "public_ipv4": 3
+    },
+    "implicit_resources_not_in_count": [
+      "RDS-managed Secrets Manager secret",
+      "ECS-managed Service Connect discovery objects and service-linked roles"
+    ]
+  },
+  "pending_approvals": [
+    "Valid individual AWS authentication and read-only account/credit/quota checks",
+    "Billable RDS even with deploy_services=false",
+    "Fargate, public IPv4, ECR, telemetry ingestion/query/storage and Secrets Manager charges",
+    "Operator /32 and synthetic HTTP-only ingress without load balancer/TLS termination",
+    "Temporary administrator DB user, no backups or final snapshot; not suitable for production",
+    "State custody/backend and resource-name collision checks",
+    "Service Connect differs from retired AWS App Mesh; rubric agreement",
+    "Actual Terraform plan, image publication and separate apply approval"
+  ],
+  "restrictions": {
+    "terraform_apply_run": false,
+    "terraform_destroy_run": false,
+    "aws_resources_created": false,
+    "ecr_push_run": false,
+    "python_changed": false,
+    "previous_lab_changed": false,
+    "plan_integrador_changed": false,
+    "commit_or_push_run": false
+  }
+}

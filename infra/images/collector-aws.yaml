@@ -10,51 +10,58 @@ receivers:
 processors:
   memory_limiter:
     check_interval: 1s
-    limit_mib: 384
-    spike_limit_mib: 96
+    limit_mib: 192
+    spike_limit_mib: 48
 
   resource:
     attributes:
       - key: lab.name
-        value: credit-lab
+        value: observability-integrator
+        action: upsert
+      - key: deployment.environment
+        value: aws-lab
+        action: upsert
+      - key: cloud.region
+        value: ${env:AWS_REGION}
         action: upsert
 
   batch:
     timeout: 1s
     send_batch_size: 512
+    send_batch_max_size: 512
 
 extensions:
   health_check:
     endpoint: "0.0.0.0:13133"
 
   sigv4auth/traces:
-    region: us-east-2
+    region: ${env:AWS_REGION}
     service: xray
 
   sigv4auth/metrics:
-    region: us-east-2
+    region: ${env:AWS_REGION}
     service: monitoring
 
   sigv4auth/logs:
-    region: us-east-2
+    region: ${env:AWS_REGION}
     service: logs
 
 exporters:
   otlphttp/traces:
-    endpoint: https://xray.us-east-2.amazonaws.com
+    endpoint: https://xray.${env:AWS_REGION}.amazonaws.com
     auth:
       authenticator: sigv4auth/traces
 
   otlphttp/metrics:
-    endpoint: https://monitoring.us-east-2.amazonaws.com
+    endpoint: https://monitoring.${env:AWS_REGION}.amazonaws.com
     auth:
       authenticator: sigv4auth/metrics
 
   otlphttp/logs:
-    endpoint: https://logs.us-east-2.amazonaws.com
+    endpoint: https://logs.${env:AWS_REGION}.amazonaws.com
     headers:
-      x-aws-log-group: /ecs/otel-credit-lab/otel-logs
-      x-aws-log-stream: otel
+      x-aws-log-group: ${env:OTEL_LOG_GROUP}
+      x-aws-log-stream: ${env:OTEL_LOG_STREAM}
     auth:
       authenticator: sigv4auth/logs
 

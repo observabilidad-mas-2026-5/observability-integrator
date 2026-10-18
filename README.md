@@ -1,8 +1,8 @@
 # observability-integrator
 
-Laboratorio integrador basado en `observability-end-to-end_v2`. Implementa el recorrido Service A → Service B → data-service → PostgreSQL, con Collector, Jaeger, Prometheus, Grafana, Loki, pruebas Python y k6. La configuración Terraform heredada se conserva sin cambios.
+Laboratorio integrador basado en `observability-end-to-end_v2`. Implementa el recorrido Service A → Service B → data-service → PostgreSQL, con Collector, Jaeger, Prometheus, Grafana, Loki, pruebas Python y k6. La configuración Terraform de AWS se prepara para Ohio con los tres servicios ECS, RDS privado y destinos AWS de telemetría; todavía no se ha desplegado.
 
-Service A conserva su API pública. Service B delega mediante HTTPX a `DATA_SERVICE_URL=http://data-service:8002`; solo data-service accede a PostgreSQL. Los tres servicios comparten los modelos de crédito y exportan trazas, métricas y logs correlacionados. AIOps, seguridad y experimentos de caos quedan pendientes; el plan se conserva en [PLAN_INTEGRADOR.md](PLAN_INTEGRADOR.md). La configuración Terraform no implica que existan recursos desplegados en AWS.
+Service A conserva su API pública. Service B delega mediante HTTPX a `DATA_SERVICE_URL=http://data-service:8002`; solo data-service accede a PostgreSQL. Los tres servicios comparten los modelos de crédito y exportan trazas, métricas y logs correlacionados. AIOps, seguridad y experimentos de caos quedan pendientes; el plan de trabajo se conserva localmente en `PLAN_INTEGRADOR.md`, fuera del seguimiento de Git. La configuración Terraform no implica que existan recursos desplegados en AWS.
 
 ## Ejecución local
 
@@ -68,4 +68,4 @@ data-service reutiliza la instrumentación FastAPI/HTTPX/SQLAlchemy y añade spa
 
 data-service admite `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_SSLMODE` y `DATABASE_SSLROOTCERT`. TLS utiliza `verify-full` por defecto fuera del Compose local; montar el certificado CA de RDS y configurar su ruta en `DATABASE_SSLROOTCERT`. `DATABASE_URL` tiene prioridad y debe incluir TLS seguro si se utiliza para RDS. Compose local configura PostgreSQL con TLS desactivado únicamente dentro de la red local de contenedores.
 
-En un despliegue posterior, inyectar `DATABASE_PASSWORD` desde Secrets Manager mediante la definición de tarea ECS, con permisos IAM mínimos. Conectar mediante red privada y permitir 5432 desde el grupo de seguridad del servicio hacia RDS; no publicar PostgreSQL. Terraform todavía asigna la conexión a Service B: habrá que trasladarla a data-service y añadir su contenedor, dependencias y scraping antes de desplegar. No se modificó ni ejecutó Terraform. La creación automática de tablas se conserva para el laboratorio; un despliegue productivo requiere migraciones controladas.
+La [preparación AWS con Terraform](infra/aws/README.md) asigna la conexión y el secreto RDS únicamente a data-service, con TLS verificable. Define tres servicios ECS con Service Connect, un Collector por tarea y exportación a X-Ray/CloudWatch. No se crearon recursos ni se publicaron imágenes en ECR. Las validaciones estáticas no equivalen a una conexión RDS ni a telemetría AWS comprobadas. La creación automática de tablas y el usuario administrador son concesiones del laboratorio; un despliegue productivo requiere usuario limitado y migraciones controladas.
