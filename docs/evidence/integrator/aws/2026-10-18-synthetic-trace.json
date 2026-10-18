@@ -1,0 +1,56 @@
+{
+  "region": "us-east-2",
+  "profile": "observability-integrator",
+  "source": "Live ECS, CloudWatch Logs, CloudWatch PromQL and X-Ray API queries",
+  "request_utc": "2026-10-18T07:51:27.715997+00:00",
+  "requests": {"post_count": 1, "post_status": 201, "persistence_get_status": 200, "application_status": "PENDING"},
+  "application_id": "ec030b5b-b9bd-41a8-9543-445bdd485cec",
+  "trace_id": "6ad47a7f3cdc5608c1844867c3958ca5",
+  "xray_trace_id": "1-6ad47a7f-3cdc5608c1844867c3958ca5",
+  "traceparent": "00-6ad47a7f3cdc5608c1844867c3958ca5-04c8288b9ed0786a-01",
+  "task": {"id": "e6b49f2b49d9428994789775e7672213", "status": "STOPPED", "exit_code": 0, "reason": "Essential container in task exited"},
+  "xray_chain": [
+    {"name": "service-a", "service": "service-a", "id": "5d8ed84fe9ac4e27", "parent_id": "04c8288b9ed0786a"},
+    {"name": "credit.create", "service": "service-a", "id": "3c8da36d738122ec", "parent_id": "5d8ed84fe9ac4e27"},
+    {"name": "POST", "service": "service-a", "id": "5b4584e131dc56cc", "parent_id": "3c8da36d738122ec"},
+    {"name": "service-b", "service": "service-b", "id": "2480da646a302771", "parent_id": "5b4584e131dc56cc"},
+    {"name": "credit.data.request", "service": "service-b", "id": "5ddf4f4a7f333239", "parent_id": "2480da646a302771"},
+    {"name": "POST", "service": "service-b", "id": "882d89be181e935a", "parent_id": "5ddf4f4a7f333239"},
+    {"name": "data-service", "service": "data-service", "id": "ce303832be51f99f", "parent_id": "882d89be181e935a"},
+    {"name": "credit.persist", "service": "data-service", "id": "78805e0d25e6c0bd", "parent_id": "ce303832be51f99f"},
+    {"name": "credits", "service": "data-service", "id": "9198bc709f26a088", "parent_id": "78805e0d25e6c0bd", "db.system.name": "postgresql", "db.operation.name": "INSERT"}
+  ],
+  "chain_note": "Subsegments inherit their enclosing trace ID; parent_id is explicit or derived from X-Ray subsegment nesting. The external caller parent has no exported span.",
+  "correlated_otlp_logs": [
+    {"service": "data-service", "event": "credit.persisted", "timestamp_ms": 1792309887862, "span_id": "78805e0d25e6c0bd"},
+    {"service": "service-b", "event": "credit.data.success", "timestamp_ms": 1792309887866, "span_id": "5ddf4f4a7f333239"},
+    {"service": "service-a", "event": "credit.remote.success", "timestamp_ms": 1792309887875, "span_id": "3c8da36d738122ec"}
+  ],
+  "logs_note": "All three records contained the trace_id above; queried in /ecs/observability-integrator/otel.",
+  "cloudwatch_metrics": {
+    "query": "{\"credit.process.memory\"}",
+    "http_status": 200,
+    "status": "success",
+    "samples": [
+      {"service": "data-service", "timestamp_seconds": 1792309991.01, "value_bytes": 109158400},
+      {"service": "service-a", "timestamp_seconds": 1792309991.01, "value_bytes": 86966272},
+      {"service": "service-b", "timestamp_seconds": 1792309991.01, "value_bytes": 87142400}
+    ]
+  },
+  "cleanup": {
+    "terraform_apply": {"added": 0, "changed": 0, "destroyed": 5},
+    "post_cleanup_plan": "No changes. Your infrastructure matches the configuration.",
+    "temporary_security_groups_remaining": 0,
+    "temporary_running_tasks_remaining": 0,
+    "temporary_active_task_definitions_remaining": 0,
+    "service_a_ingress_rules_remaining": 0,
+    "temporary_task_definition_delete_requested": true,
+    "temporary_client_log_stream_deleted": true,
+    "services": [
+      {"service": "service-a", "desired": 1, "running": 1, "pending": 0, "rollout": "COMPLETED"},
+      {"service": "service-b", "desired": 1, "running": 1, "pending": 0, "rollout": "COMPLETED"},
+      {"service": "data-service", "desired": 1, "running": 1, "pending": 0, "rollout": "COMPLETED"}
+    ]
+  },
+  "sanitization": "No credentials, tokens, customer fields, SQL statements, environment dumps, state or binary plans retained. Application and trace identifiers describe only synthetic data."
+}

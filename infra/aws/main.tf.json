@@ -1,6 +1,15 @@
 {
   "terraform": {
     "required_version": ">= 1.10, < 2.0",
+    "backend": {
+      "s3": {
+        "bucket": "observabilidad-mas-2026-5-tfstate-aws",
+        "key": "integrator/terraform.tfstate",
+        "region": "us-east-2",
+        "encrypt": true,
+        "use_lockfile": true
+      }
+    },
     "required_providers": {
       "aws": {
         "source": "hashicorp/aws",
@@ -55,6 +64,15 @@
       "validation": {
         "condition": "${can(regex(\"^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$\", var.image_tag)) && var.image_tag != \"latest\"}",
         "error_message": "Use an explicit release tag, not latest."
+      }
+    },
+    "collector_image_tag": {
+      "type": "string",
+      "default": null,
+      "description": "Optional immutable Collector release tag. Null preserves image_tag for both images.",
+      "validation": {
+        "condition": "${var.collector_image_tag == null ? true : can(regex(\"^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$\", var.collector_image_tag)) && var.collector_image_tag != \"latest\"}",
+        "error_message": "Use an explicit Collector release tag, not latest, or null to inherit image_tag."
       }
     },
     "deploy_services": {
@@ -167,7 +185,7 @@
         },
         {
           "name": "collector",
-          "image": "${aws_ecr_repository.images[\"collector\"].repository_url}:${var.image_tag}",
+          "image": "${aws_ecr_repository.images[\"collector\"].repository_url}:${coalesce(var.collector_image_tag, var.image_tag)}",
           "essential": true,
           "cpu": 128,
           "memoryReservation": 256,
@@ -269,7 +287,7 @@
         },
         {
           "name": "collector",
-          "image": "${aws_ecr_repository.images[\"collector\"].repository_url}:${var.image_tag}",
+          "image": "${aws_ecr_repository.images[\"collector\"].repository_url}:${coalesce(var.collector_image_tag, var.image_tag)}",
           "essential": true,
           "cpu": 128,
           "memoryReservation": 256,
@@ -397,7 +415,7 @@
         },
         {
           "name": "collector",
-          "image": "${aws_ecr_repository.images[\"collector\"].repository_url}:${var.image_tag}",
+          "image": "${aws_ecr_repository.images[\"collector\"].repository_url}:${coalesce(var.collector_image_tag, var.image_tag)}",
           "essential": true,
           "cpu": 128,
           "memoryReservation": 256,
@@ -580,7 +598,8 @@
         "parameter": [
           {
             "name": "rds.force_ssl",
-            "value": "1"
+            "value": "1",
+            "apply_method": "pending-reboot"
           }
         ]
       }
