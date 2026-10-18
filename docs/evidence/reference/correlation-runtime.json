@@ -1,0 +1,247 @@
+{
+  "trace_id": "9b3eac4996ad45d3ba62bf3b4972a3c1",
+  "grafana_runtime_templates_preserved": true,
+  "log_to_trace_template": {
+    "datasourceUid": "jaeger",
+    "matcherRegex": "trace_id",
+    "matcherType": "label",
+    "name": "trace_id",
+    "url": "${__value.raw}"
+  },
+  "trace_to_logs_config": {
+    "customQuery": true,
+    "datasourceUid": "loki",
+    "query": "{service_name=~\"service-a.*|service-b.*\"} | trace_id=\"${__span.traceId}\"",
+    "spanEndTimeShift": "1m",
+    "spanStartTimeShift": "-1m"
+  },
+  "resolved_logql": "{service_name=~\"service-a.*|service-b.*\"} | trace_id=\"9b3eac4996ad45d3ba62bf3b4972a3c1\"",
+  "services_with_logs": [
+    "service-a",
+    "service-b"
+  ],
+  "logs": {
+    "status": "success",
+    "data": {
+      "resultType": "streams",
+      "result": [
+        {
+          "stream": {
+            "code_file_path": "/app/app/service.py",
+            "code_function_name": "remote",
+            "code_line_number": "17",
+            "deployment_environment": "lab",
+            "detected_level": "info",
+            "flags": "1",
+            "lab_name": "credit-lab",
+            "observed_timestamp": "1792286554225234284",
+            "scope_name": "credit-lab",
+            "service_name": "service-a",
+            "severity_number": "9",
+            "severity_text": "INFO",
+            "span_id": "960cf0f86029dbc0",
+            "telemetry_sdk_language": "python",
+            "telemetry_sdk_name": "opentelemetry",
+            "telemetry_sdk_version": "1.38.0",
+            "trace_id": "9b3eac4996ad45d3ba62bf3b4972a3c1"
+          },
+          "values": [
+            [
+              "1792286554224915712",
+              "credit.remote.success"
+            ]
+          ]
+        },
+        {
+          "stream": {
+            "code_file_path": "/app/app/storage.py",
+            "code_function_name": "create",
+            "code_line_number": "48",
+            "deployment_environment": "lab",
+            "detected_level": "info",
+            "flags": "1",
+            "lab_name": "credit-lab",
+            "observed_timestamp": "1792286554213213024",
+            "scope_name": "credit-lab",
+            "service_name": "service-b",
+            "severity_number": "9",
+            "severity_text": "INFO",
+            "span_id": "c28fb69e28cec38e",
+            "telemetry_sdk_language": "python",
+            "telemetry_sdk_name": "opentelemetry",
+            "telemetry_sdk_version": "1.38.0",
+            "trace_id": "9b3eac4996ad45d3ba62bf3b4972a3c1"
+          },
+          "values": [
+            [
+              "1792286554211814912",
+              "credit.persisted"
+            ]
+          ]
+        }
+      ],
+      "stats": {
+        "summary": {
+          "bytesProcessedPerSecond": 104207,
+          "linesProcessedPerSecond": 737,
+          "totalBytesProcessed": 1272,
+          "totalLinesProcessed": 9,
+          "execTime": 0.012206,
+          "queueTime": 0.000182,
+          "subqueries": 0,
+          "totalEntriesReturned": 2,
+          "splits": 0,
+          "shards": 1,
+          "totalPostFilterLines": 2,
+          "totalStructuredMetadataBytesProcessed": 1080
+        },
+        "querier": {
+          "store": {
+            "totalChunksRef": 0,
+            "totalChunksDownloaded": 0,
+            "chunksDownloadTime": 0,
+            "queryReferencedStructuredMetadata": false,
+            "chunk": {
+              "headChunkBytes": 0,
+              "headChunkLines": 0,
+              "decompressedBytes": 0,
+              "decompressedLines": 0,
+              "compressedBytes": 0,
+              "totalDuplicates": 0,
+              "postFilterLines": 0,
+              "headChunkStructuredMetadataBytes": 0,
+              "decompressedStructuredMetadataBytes": 0
+            },
+            "chunkRefsFetchTime": 0,
+            "congestionControlLatency": 0,
+            "pipelineWrapperFilteredLines": 0
+          }
+        },
+        "ingester": {
+          "totalReached": 1,
+          "totalChunksMatched": 2,
+          "totalBatches": 2,
+          "totalLinesSent": 2,
+          "store": {
+            "totalChunksRef": 0,
+            "totalChunksDownloaded": 0,
+            "chunksDownloadTime": 0,
+            "queryReferencedStructuredMetadata": true,
+            "chunk": {
+              "headChunkBytes": 1272,
+              "headChunkLines": 9,
+              "decompressedBytes": 0,
+              "decompressedLines": 0,
+              "compressedBytes": 0,
+              "totalDuplicates": 0,
+              "postFilterLines": 2,
+              "headChunkStructuredMetadataBytes": 1080,
+              "decompressedStructuredMetadataBytes": 0
+            },
+            "chunkRefsFetchTime": 292120,
+            "congestionControlLatency": 0,
+            "pipelineWrapperFilteredLines": 0
+          }
+        },
+        "cache": {
+          "chunk": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "index": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "result": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "statsResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "volumeResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "seriesResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "labelResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          },
+          "instantMetricResult": {
+            "entriesFound": 0,
+            "entriesRequested": 0,
+            "entriesStored": 0,
+            "bytesReceived": 0,
+            "bytesSent": 0,
+            "requests": 0,
+            "downloadTime": 0,
+            "queryLengthServed": 0
+          }
+        },
+        "index": {
+          "totalChunks": 0,
+          "postFilterChunks": 0,
+          "shardsDuration": 0,
+          "usedBloomFilters": false
+        }
+      }
+    }
+  },
+  "api_unchanged_matches_running_image": true,
+  "api_sha256": {
+    "main.py": "9dbc93731c72b0e9dc59cd09e14bbbe369786a2629b1a31fb3cf4975474539b8",
+    "models.py": "28f44248d8ea2f5fc08ffb203841802e62dddd35b3196e1631dd6fa5c961dec7",
+    "service.py": "855955205bb3795ffacfe8c4e60bc016ba79814ec205e73ee70533ff649ebe4a",
+    "storage.py": "eb7f51fdddd4082f87cdf5846b59f0e819354932ee71556b0cfbda38e2173c77",
+    "telemetry.py": "98cc911bdb8e742b196feb3eec9a7317b9e006f11b2e7ae7f70663bc02a68526",
+    "__init__.py": "aac06cbc091248f3de5bad00cb98155df2bea518018e7459e99bc4c3f6fe3afb"
+  },
+  "scope": "Grafana provisioning and backend correlation tested; visual navigation assessed separately"
+}

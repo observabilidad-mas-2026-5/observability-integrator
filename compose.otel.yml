@@ -1,0 +1,93 @@
+name: observability-integrator
+x-app: &app
+  build: .
+  image: observability-integrator-api:local
+  cpus: 1.0
+  mem_limit: 512m
+  restart: unless-stopped
+services:
+  service-a:
+    <<: *app
+    ports: ["127.0.0.1:${API_PORT:-28000}:8000"]
+    environment:
+      SERVICE_B_URL: http://service-b:8001
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_SERVICE_NAME: service-a
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4318
+    depends_on:
+      service-b: {condition: service_healthy}
+      collector: {condition: service_started}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  service-b:
+    <<: *app
+    command: [uvicorn, app.storage:app, --host, 0.0.0.0, --port, "8001"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://lab:${POSTGRES_PASSWORD:-local-lab-only}@postgres:5432/credits
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_SERVICE_NAME: service-b
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4318
+    depends_on:
+      postgres: {condition: service_healthy}
+      collector: {condition: service_started}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  postgres:
+    image: postgres:16.6-alpine
+    environment:
+      POSTGRES_USER: lab
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-lab-only}
+      POSTGRES_DB: credits
+    volumes: [credits-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U lab -d credits"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.139.0
+    command: [--config=/etc/otelcol/config.yaml]
+    volumes: [./otel/collector.yaml:/etc/otelcol/config.yaml:ro]
+    ports: ["127.0.0.1:${OTLP_GRPC_PORT:-24317}:4317", "127.0.0.1:${OTLP_HTTP_PORT:-24318}:4318"]
+    cpus: 1.0
+    mem_limit: 512m
+    depends_on: [jaeger, loki]
+  jaeger:
+    image: jaegertracing/all-in-one:1.64.0
+    environment: {COLLECTOR_OTLP_ENABLED: "true"}
+    ports: ["127.0.0.1:${JAEGER_PORT:-26686}:16686"]
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    command: [--config.file=/etc/prometheus/prometheus.yml, --enable-feature=exemplar-storage]
+    volumes: [./otel/prometheus.yaml:/etc/prometheus/prometheus.yml:ro, otel-prometheus:/prometheus]
+    ports: ["127.0.0.1:${PROMETHEUS_PORT:-29090}:9090"]
+  loki:
+    image: grafana/loki:3.4.2
+    command: [-config.file=/etc/loki/lab.yaml]
+    volumes: [./otel/loki.yaml:/etc/loki/lab.yaml:ro, otel-loki:/loki]
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      GF_SECURITY_ADMIN_USER: lab
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-local-lab-only}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes: [./otel/grafana/provisioning:/etc/grafana/provisioning:ro, ./otel/grafana/dashboards:/var/lib/grafana/dashboards:ro]
+    ports: ["127.0.0.1:${GRAFANA_PORT:-23000}:3000"]
+    depends_on: [prometheus, loki, jaeger]
+  k6:
+    image: grafana/k6:0.57.0
+    profiles: [load]
+    environment: {BASE_URL: "http://service-a:8000"}
+    volumes: [./otel/k6:/scripts:ro, ./docs/evidence:/results]
+    entrypoint: [k6]
+    command: [run, /scripts/load.js]
+volumes:
+  credits-db:
+  otel-prometheus:
+  otel-loki:

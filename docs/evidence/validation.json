@@ -1,0 +1,58 @@
+{
+  "trace_id": "9b3eac4996ad45d3ba62bf3b4972a3c1",
+  "application_id": "1db8eb20-4194-4170-923e-2ed5109c44cd",
+  "checks": [
+    {
+      "name": "health",
+      "passed": true
+    },
+    {
+      "name": "create pending",
+      "passed": true
+    },
+    {
+      "name": "read",
+      "passed": true
+    },
+    {
+      "name": "list contains created",
+      "passed": true
+    },
+    {
+      "name": "update",
+      "passed": true
+    },
+    {
+      "name": "missing 404",
+      "passed": true
+    },
+    {
+      "name": "validation 422",
+      "passed": true
+    },
+    {
+      "name": "persistent after service-b restart",
+      "passed": true
+    },
+    {
+      "name": "one trace across A B",
+      "passed": true
+    },
+    {
+      "name": "postgres span",
+      "passed": true
+    },
+    {
+      "name": "correlated logs A B in Loki via Grafana",
+      "passed": true
+    },
+    {
+      "name": "prometheus targets up",
+      "passed": true
+    },
+    {
+      "name": "six panels provisioned",
+      "passed": true
+    }
+  ]
+}

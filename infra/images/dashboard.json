@@ -1,0 +1,210 @@
+{
+  "uid": "credit-lab",
+  "title": "Laboratorio creditos OTel",
+  "schemaVersion": 40,
+  "version": 2,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Latencia p95 / p99 (s)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_highr_seconds_bucket{instance=\"127.0.0.1:8000\"}[1m])))",
+          "refId": "A",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_highr_seconds_bucket{instance=\"127.0.0.1:8000\"}[1m])))",
+          "refId": "B",
+          "legendFormat": "p99"
+        },
+        {
+          "expr": "vector(0.5)",
+          "refId": "C",
+          "legendFormat": "Objetivo p95 < 0.5s"
+        },
+        {
+          "expr": "vector(1)",
+          "refId": "D",
+          "legendFormat": "Objetivo p99 < 1s"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Errores HTTP (fraccion)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "(sum(rate(http_requests_total{instance=\"127.0.0.1:8000\",status=~\"5..\"}[1m])) or vector(0)) / clamp_min(sum(rate(http_requests_total{instance=\"127.0.0.1:8000\"}[1m])), 0.001)",
+          "refId": "A",
+          "legendFormat": ""
+        },
+        {
+          "expr": "vector(0.005)",
+          "refId": "B",
+          "legendFormat": "Objetivo errores < 0.5%"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Trafico (solicitudes/s)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{instance=\"127.0.0.1:8000\",handler!=\"/metrics\"}[1m]))",
+          "refId": "A",
+          "legendFormat": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Disponibilidad / exito",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"apps\"}",
+          "refId": "A",
+          "legendFormat": ""
+        },
+        {
+          "expr": "1 - (sum(rate(http_requests_total{instance=\"127.0.0.1:8000\",status=~\"5..\"}[1m])) or vector(0)) / clamp_min(sum(rate(http_requests_total{instance=\"127.0.0.1:8000\"}[1m])),0.001)",
+          "refId": "B",
+          "legendFormat": ""
+        },
+        {
+          "expr": "(sum(rate(http_requests_total{instance=\"127.0.0.1:8000\",status=~\"2..\"}[1m])) or vector(0)) / clamp_min(sum(rate(http_requests_total{instance=\"127.0.0.1:8000\"}[1m])), 0.001)",
+          "refId": "C",
+          "legendFormat": "Respuestas 2xx / total"
+        },
+        {
+          "expr": "vector(0.995)",
+          "refId": "D",
+          "legendFormat": "Objetivo \u00e9xito >= 99.5%"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "CPU servicios (cores)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{job=\"apps\"}[1m])",
+          "refId": "A",
+          "legendFormat": "{{instance}}"
+        },
+        {
+          "expr": "rate(otelcol_process_cpu_seconds_total{job=\"collector\"}[1m])",
+          "refId": "B",
+          "legendFormat": "Collector (cores)"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Errores Collector (eventos/s)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(otelcol_exporter_send_failed_spans_total[1m])) or vector(0)",
+          "refId": "A",
+          "legendFormat": ""
+        },
+        {
+          "expr": "sum(rate(otelcol_exporter_send_failed_log_records_total[1m])) or vector(0)",
+          "refId": "B",
+          "legendFormat": ""
+        },
+        {
+          "expr": "sum(rate(otelcol_exporter_send_failed_metric_points_total[1m])) or vector(0)",
+          "refId": "C",
+          "legendFormat": ""
+        },
+        {
+          "expr": "sum(rate(otelcol_receiver_refused_spans_total[1m])) or vector(0)",
+          "refId": "D",
+          "legendFormat": "Rechazos spans"
+        },
+        {
+          "expr": "sum(rate(otelcol_receiver_refused_log_records_total[1m])) or vector(0)",
+          "refId": "E",
+          "legendFormat": "Rechazos log_records"
+        },
+        {
+          "expr": "sum(rate(otelcol_receiver_refused_metric_points_total[1m])) or vector(0)",
+          "refId": "F",
+          "legendFormat": "Rechazos metric_points"
+        }
+      ]
+    }
+  ]
+}

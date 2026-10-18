@@ -1,0 +1,11 @@
+region = "us-east-2"
+allowed_cidr = "YOUR_PUBLIC_IP/32"
+grafana_secret_arn = "arn:aws:secretsmanager:REGION:ACCOUNT:secret:EXISTING_SECRET"
+images = {
+  api = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/api:REVISION"
+  collector = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/collector:REVISION"
+  prometheus = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/prometheus:REVISION"
+  loki = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/loki:REVISION"
+  grafana = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/grafana:REVISION"
+  gateway = "ACCOUNT.dkr.ecr.REGION.amazonaws.com/otel-credit-lab/gateway:REVISION"
+}

@@ -1,0 +1,82 @@
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 384
+    spike_limit_mib: 96
+
+  resource:
+    attributes:
+      - key: lab.name
+        value: credit-lab
+        action: upsert
+
+  batch:
+    timeout: 1s
+    send_batch_size: 512
+
+extensions:
+  health_check:
+    endpoint: "0.0.0.0:13133"
+
+  sigv4auth/traces:
+    region: us-east-2
+    service: xray
+
+  sigv4auth/metrics:
+    region: us-east-2
+    service: monitoring
+
+  sigv4auth/logs:
+    region: us-east-2
+    service: logs
+
+exporters:
+  otlphttp/traces:
+    endpoint: https://xray.us-east-2.amazonaws.com
+    auth:
+      authenticator: sigv4auth/traces
+
+  otlphttp/metrics:
+    endpoint: https://monitoring.us-east-2.amazonaws.com
+    auth:
+      authenticator: sigv4auth/metrics
+
+  otlphttp/logs:
+    endpoint: https://logs.us-east-2.amazonaws.com
+    headers:
+      x-aws-log-group: /ecs/otel-credit-lab/otel-logs
+      x-aws-log-stream: otel
+    auth:
+      authenticator: sigv4auth/logs
+
+service:
+  extensions:
+    - health_check
+    - sigv4auth/traces
+    - sigv4auth/metrics
+    - sigv4auth/logs
+
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/traces]
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/metrics]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/logs]
