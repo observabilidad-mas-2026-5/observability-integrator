@@ -1,0 +1,79 @@
+{
+  "queried_utc": "2026-10-18T15:49:08.366032+00:00",
+  "query": "{\"credit.process.memory\"}",
+  "http_status": 200,
+  "result": {
+    "status": "success",
+    "data": {
+      "resultType": "vector",
+      "result": [
+        {
+          "metric": {
+            "@aws.account": "467866783326",
+            "@aws.region": "us-east-2",
+            "@instrumentation.@name": "credit-lab",
+            "@resource.cloud.region": "us-east-2",
+            "@resource.deployment.environment": "aws-lab",
+            "@resource.lab.name": "observability-integrator",
+            "@resource.service.name": "data-service",
+            "@resource.service.namespace": "observability-integrator",
+            "@resource.telemetry.sdk.language": "python",
+            "@resource.telemetry.sdk.name": "opentelemetry",
+            "@resource.telemetry.sdk.version": "1.38.0",
+            "__name__": "credit.process.memory",
+            "__type__": "Gauge",
+            "__unit__": "By"
+          },
+          "value": [
+            1792338549.441,
+            "110346240"
+          ]
+        },
+        {
+          "metric": {
+            "@aws.account": "467866783326",
+            "@aws.region": "us-east-2",
+            "@instrumentation.@name": "credit-lab",
+            "@resource.cloud.region": "us-east-2",
+            "@resource.deployment.environment": "aws-lab",
+            "@resource.lab.name": "observability-integrator",
+            "@resource.service.name": "service-a",
+            "@resource.service.namespace": "observability-integrator",
+            "@resource.telemetry.sdk.language": "python",
+            "@resource.telemetry.sdk.name": "opentelemetry",
+            "@resource.telemetry.sdk.version": "1.38.0",
+            "__name__": "credit.process.memory",
+            "__type__": "Gauge",
+            "__unit__": "By"
+          },
+          "value": [
+            1792338549.441,
+            "88731648"
+          ]
+        },
+        {
+          "metric": {
+            "@aws.account": "467866783326",
+            "@aws.region": "us-east-2",
+            "@instrumentation.@name": "credit-lab",
+            "@resource.cloud.region": "us-east-2",
+            "@resource.deployment.environment": "aws-lab",
+            "@resource.lab.name": "observability-integrator",
+            "@resource.service.name": "service-b",
+            "@resource.service.namespace": "observability-integrator",
+            "@resource.telemetry.sdk.language": "python",
+            "@resource.telemetry.sdk.name": "opentelemetry",
+            "@resource.telemetry.sdk.version": "1.38.0",
+            "__name__": "credit.process.memory",
+            "__type__": "Gauge",
+            "__unit__": "By"
+          },
+          "value": [
+            1792338549.441,
+            "87789568"
+          ]
+        }
+      ]
+    }
+  }
+}

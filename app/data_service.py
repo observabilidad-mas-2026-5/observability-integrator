@@ -8,6 +8,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy.exc import SQLAlchemyError
 from .models import CreditApplication, CreditApplicationCreate, CreditApplicationStatusUpdate
 from .telemetry import configure, tracer, logger, flush
+from .error_chaos import inject_error
 
 database_url = os.getenv("DATABASE_URL") or URL.create(
     "postgresql+psycopg", username=os.getenv("DATABASE_USER", "lab"),
@@ -64,6 +65,7 @@ def listing():
 
 @app.get("/credit-applications/{application_id}", response_model=CreditApplication)
 def get(application_id: str):
+    inject_error(application_id)
     with engine.connect() as conn:
         row = conn.execute(select(credits).where(credits.c.application_id == application_id)).mappings().first()
     if row is None:

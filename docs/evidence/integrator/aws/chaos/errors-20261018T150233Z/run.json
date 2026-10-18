@@ -1,0 +1,10 @@
+{
+  "run_id": "errors-20261018T150233Z",
+  "started_utc": "2026-10-18T15:02:33.389120+00:00",
+  "deadline_epoch": 1792337453,
+  "application_id": "c32d2d6c-b73b-4a32-ab55-bbb23da6c616",
+  "data_writes": 0,
+  "task_arn": "arn:aws:ecs:us-east-2:467866783326:task/observability-integrator/36d39f910e6340f89b28904a1ec27147",
+  "fault_started_utc": "2026-10-18T15:12:08.177000+00:00",
+  "verification_observed_utc": "2026-10-18T15:12:35.327118+00:00"
+}

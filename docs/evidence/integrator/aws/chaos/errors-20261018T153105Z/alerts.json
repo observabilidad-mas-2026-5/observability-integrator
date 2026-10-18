@@ -1,0 +1,6 @@
+{
+  "observed_utc": "2026-10-18T15:49:12.002506+00:00",
+  "matching_alarms": [],
+  "mttd_alert_seconds": null,
+  "limitation": "No independently verified correlated alert; operational verification is not alert MTTD"
+}

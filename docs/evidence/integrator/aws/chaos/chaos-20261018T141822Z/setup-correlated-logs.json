@@ -1,0 +1,23 @@
+[
+  {
+    "service": "data-service",
+    "timestamp_ms": 1792333466294,
+    "event": "credit.persisted",
+    "trace_id": "6ad4d69a7dd24e200e59d8dce8ff44b2",
+    "span_id": "5ae794a0c4fabb15"
+  },
+  {
+    "service": "service-b",
+    "timestamp_ms": 1792333466298,
+    "event": "credit.data.success",
+    "trace_id": "6ad4d69a7dd24e200e59d8dce8ff44b2",
+    "span_id": "bc151fd8569ef3f3"
+  },
+  {
+    "service": "service-a",
+    "timestamp_ms": 1792333466306,
+    "event": "credit.remote.success",
+    "trace_id": "6ad4d69a7dd24e200e59d8dce8ff44b2",
+    "span_id": "72940fc6559e778d"
+  }
+]

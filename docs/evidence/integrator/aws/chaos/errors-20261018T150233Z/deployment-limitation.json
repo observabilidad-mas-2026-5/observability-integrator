@@ -1,0 +1,11 @@
+{
+  "phase": "arming before measured traffic",
+  "service": "service-b",
+  "previous_task_id": "8b1b19424ca440eba961671f9b3b1df1",
+  "observed_status": "DEPROVISIONING",
+  "stop_code": "ServiceSchedulerInitiated",
+  "stopped_reason": "Task failed container health checks",
+  "application_exit_code": 0,
+  "explanation": "B healthcheck depends on data-service /health; its temporary unavailability during the data-service rolling replacement caused an ECS-managed B replacement. Terraform did not modify the B service or definition.",
+  "safety": "Measured traffic starts only after all three applications are HEALTHY; no extra network/IAM changes or manual B restarts were performed."
+}

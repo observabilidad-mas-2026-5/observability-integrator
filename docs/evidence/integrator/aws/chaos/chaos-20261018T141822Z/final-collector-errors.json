@@ -1,0 +1,17 @@
+[
+  {
+    "service": "service-a",
+    "events_read": 14,
+    "export_errors": 0
+  },
+  {
+    "service": "service-b",
+    "events_read": 14,
+    "export_errors": 0
+  },
+  {
+    "service": "data-service",
+    "events_read": 14,
+    "export_errors": 0
+  }
+]

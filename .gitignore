@@ -24,6 +24,7 @@ __pycache__/
 **/.terraform/
 *.tfstate*
 *.tfplan
+tfplan
 *.tfvars
 !*.tfvars.example
 

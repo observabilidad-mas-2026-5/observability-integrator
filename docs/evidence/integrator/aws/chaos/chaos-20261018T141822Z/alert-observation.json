@@ -1,0 +1,7 @@
+{
+  "observed_utc": "2026-10-18T14:35:14.443857+00:00",
+  "matching_alarm_count": 0,
+  "alarms": [],
+  "mttd_alert_seconds": null,
+  "reason": "No independently verified alert notification correlated with this fault; operational verification is not alert MTTD"
+}

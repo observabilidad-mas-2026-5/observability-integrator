@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-18T15:26:40.890508+00:00",
+  "data_error_expires_at": 0,
+  "temporary_groups": 0,
+  "services_healthy": 3,
+  "terraform": "No changes",
+  "data_writes": 0,
+  "data_service_image": "chaos-errors-v1"
+}

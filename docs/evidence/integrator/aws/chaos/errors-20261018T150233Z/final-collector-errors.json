@@ -1,0 +1,14 @@
+[
+  {
+    "service": "service-a",
+    "export_errors": 0
+  },
+  {
+    "service": "service-b",
+    "export_errors": 0
+  },
+  {
+    "service": "data-service",
+    "export_errors": 0
+  }
+]

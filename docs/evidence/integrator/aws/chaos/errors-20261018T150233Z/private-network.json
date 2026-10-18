@@ -1,0 +1,21 @@
+[
+  {
+    "group": "sg-03aaee4d8a3ba1cae",
+    "ingress": [
+      {
+        "IpProtocol": "tcp",
+        "FromPort": 8000,
+        "ToPort": 8000,
+        "UserIdGroupPairs": [
+          {
+            "UserId": "467866783326",
+            "GroupId": "sg-029db826e6101393b"
+          }
+        ],
+        "IpRanges": [],
+        "Ipv6Ranges": [],
+        "PrefixListIds": []
+      }
+    ]
+  }
+]

@@ -1,6 +1,6 @@
 # Validación local del Módulo A
 
-Alcance: Service A → Service B → data-service → PostgreSQL en Docker Compose local. No se ejecutó Terraform ni se desplegaron recursos AWS.
+Validamos Service A → Service B → data-service → PostgreSQL en Docker Compose local. Esta carpeta documenta la etapa local inicial: durante esa ejecución no ejecutamos Terraform ni desplegamos recursos AWS. Presentamos la etapa posterior en las [evidencias AWS](aws/README.md) y los [experimentos de caos](aws/chaos/README.md), sin mezclar sus fechas ni conteos de pruebas.
 
 - [pytest.txt](pytest.txt): 16 pruebas aprobadas, incluidas las 10 existentes y nuevas pruebas de delegación B → data-service y filtrado de spans SQL. Dos advertencias de obsolescencia de Starlette/AnyIO.
 - [validation.json](validation.json): 22 comprobaciones aprobadas de CRUD, 404, 422, persistencia tras reiniciar data-service, relaciones entre spans, métricas y logs de los tres servicios.
@@ -13,4 +13,4 @@ Alcance: Service A → Service B → data-service → PostgreSQL en Docker Compo
 
 Incidencia de ejecución: PowerShell interpretó inicialmente un mensaje informativo de Docker en stderr como error y detuvo el comando que capturaba pytest. La repetición completó las 16 pruebas; no hubo fallos de pruebas en la ejecución completada.
 
-No se ejecutaron el benchmark largo, capturas del navegador ni el bundle auxiliar de imágenes cloud. La conectividad RDS, TLS contra RDS y Secrets Manager quedan pendientes de una fase AWS. Las evidencias anteriores fuera de esta carpeta se conservan intactas.
+En esta etapa no ejecutamos el benchmark largo, capturas del navegador ni el bundle auxiliar de imágenes cloud. La conectividad RDS, TLS contra RDS y Secrets Manager quedaron pendientes en ese momento; documentamos después la conexión real y la configuración desplegada en la [etapa AWS](aws/README.md). No afirmamos haber validado el rechazo de una CA incorrecta ni la rotación de credenciales. Conservamos intactas las evidencias anteriores.

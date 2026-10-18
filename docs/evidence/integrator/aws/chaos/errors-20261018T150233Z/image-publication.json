@@ -1,0 +1,13 @@
+{
+  "image": "467866783326.dkr.ecr.us-east-2.amazonaws.com/observability-integrator/api:chaos-errors-v1",
+  "digest": "sha256:33328cfa1b98f44b61d0f8b4e6de6aa015b92093ba6a917b009b04e5e9ff4feb",
+  "platform": "linux/amd64",
+  "profile": "observability-integrator",
+  "local_remote_digest_match": true,
+  "initial_digest_unchanged": true,
+  "chaos_latency_v1_digest_unchanged": true,
+  "python_tests": {"passed": 46, "failed": 0, "warnings": 2},
+  "terraform_mock_tests": {"passed": 5, "failed": 0},
+  "terraform_validate": "passed",
+  "note": "No claims of vulnerability remediation; this experiment changes application code only."
+}

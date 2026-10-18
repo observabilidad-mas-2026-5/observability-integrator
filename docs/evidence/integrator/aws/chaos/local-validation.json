@@ -1,0 +1,41 @@
+{
+  "environment": "local",
+  "aws_injection_executed": false,
+  "experiment": "service-b-latency-200ms-v1",
+  "source": "Actual pytest stdout from test_local_three_phases in an existing API container, network disabled and repository mounted read-only",
+  "scope": "Real Service A and B handlers via TestClient; data-service HTTP dependency simulated with MockTransport; no PostgreSQL or AWS involved",
+  "phase_seconds_configured": 0.7,
+  "rps_target": 5,
+  "requested_delay_ms": 200,
+  "phases": {
+    "baseline": {
+      "started_utc": "2026-10-18T13:06:30.386341+00:00",
+      "ended_utc": "2026-10-18T13:06:31.086539+00:00",
+      "requests": 4,
+      "errors": 0,
+      "p99_ms": 26.32191999873612
+    },
+    "injection": {
+      "started_utc": "2026-10-18T13:06:31.086666+00:00",
+      "ended_utc": "2026-10-18T13:06:31.943508+00:00",
+      "requests": 4,
+      "errors": 0,
+      "p99_ms": 214.42688298702706
+    },
+    "recovery": {
+      "started_utc": "2026-10-18T13:06:31.943562+00:00",
+      "ended_utc": "2026-10-18T13:06:32.643742+00:00",
+      "requests": 4,
+      "errors": 0,
+      "p99_ms": 19.656550997751765
+    }
+  },
+  "statistics_scope": "Nearest-rank descriptive p99 from four requests per phase; not a statistical SLO validation",
+  "mttd_seconds": null,
+  "mttd_reason": "No real alert or AWS experiment",
+  "window_budget_consumption_percent": 0,
+  "working_slo": {"target": 0.995, "latency_threshold_ms": 1000},
+  "final_regression": {"passed": 35, "failed": 0, "warnings": 2, "duration_seconds": 8.54},
+  "warnings": "Existing Starlette/httpx/AnyIO deprecation warnings",
+  "other_checks": ["Python syntax", "local documentation links", "git diff --check", "credential-pattern check"]
+}

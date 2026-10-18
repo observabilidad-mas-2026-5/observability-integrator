@@ -1,0 +1,36 @@
+{
+  "verified_utc": "2026-10-18T15:57:54.256163+00:00",
+  "active_service_tasks": 3,
+  "active_temporary_task_definitions": 0,
+  "service_a_ingress_rules": [],
+  "services": [
+    {
+      "name": "observability-integrator-service-a",
+      "desired": 1,
+      "running": 1,
+      "pending": 0,
+      "deployment": "COMPLETED"
+    },
+    {
+      "name": "observability-integrator-service-b",
+      "desired": 1,
+      "running": 1,
+      "pending": 0,
+      "deployment": "COMPLETED"
+    },
+    {
+      "name": "observability-integrator-data-service",
+      "desired": 1,
+      "running": 1,
+      "pending": 0,
+      "deployment": "COMPLETED"
+    }
+  ],
+  "premeasurement_b_replacement": [
+    {
+      "task_id": "0d4a51e44e0640a8a639f772590d0c53",
+      "stop_code": "ServiceSchedulerInitiated",
+      "reason": "Task failed container health checks"
+    }
+  ]
+}

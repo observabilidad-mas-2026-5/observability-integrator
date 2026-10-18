@@ -1,0 +1,8 @@
+{
+  "baseline_p99_ms": 72.00367600000845,
+  "recovery_p99_ms": 84.18183499998122,
+  "tolerance_ms": 20,
+  "within_descriptive_tolerance": true,
+  "baseline_error_rate": 0.0,
+  "recovery_error_rate": 0.0
+}

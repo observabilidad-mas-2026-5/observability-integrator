@@ -1,0 +1,20 @@
+[
+  {
+    "service": "service-a",
+    "task": "arn:aws:ecs:us-east-2:467866783326:task/observability-integrator/2f4af73c639c493bb329387b70d1f474",
+    "health": "HEALTHY",
+    "image": "467866783326.dkr.ecr.us-east-2.amazonaws.com/observability-integrator/api:chaos-latency-v1"
+  },
+  {
+    "service": "service-b",
+    "task": "arn:aws:ecs:us-east-2:467866783326:task/observability-integrator/abc05f021b604789bcf0393e6c563cd8",
+    "health": "HEALTHY",
+    "image": "467866783326.dkr.ecr.us-east-2.amazonaws.com/observability-integrator/api:chaos-latency-v1"
+  },
+  {
+    "service": "data-service",
+    "task": "arn:aws:ecs:us-east-2:467866783326:task/observability-integrator/3fe314380f1f4c4399f052bb95ecc77a",
+    "health": "HEALTHY",
+    "image": "467866783326.dkr.ecr.us-east-2.amazonaws.com/observability-integrator/api:initial"
+  }
+]

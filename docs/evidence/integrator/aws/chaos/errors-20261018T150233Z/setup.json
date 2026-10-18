@@ -1,0 +1,8 @@
+{
+  "event": "chaos.setup.complete",
+  "utc": "2026-10-18T15:09:05.167791+00:00",
+  "status": 200,
+  "duration_ms": 77.28020700000116,
+  "trace_id": "6ad4e111a195caaa9b30818800008969",
+  "application_id": "c32d2d6c-b73b-4a32-ab55-bbb23da6c616"
+}

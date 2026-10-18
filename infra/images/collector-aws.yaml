@@ -34,10 +34,6 @@ extensions:
   health_check:
     endpoint: "0.0.0.0:13133"
 
-  sigv4auth/traces:
-    region: ${env:AWS_REGION}
-    service: xray
-
   sigv4auth/metrics:
     region: ${env:AWS_REGION}
     service: monitoring
@@ -47,10 +43,8 @@ extensions:
     service: logs
 
 exporters:
-  otlphttp/traces:
-    endpoint: https://xray.${env:AWS_REGION}.amazonaws.com
-    auth:
-      authenticator: sigv4auth/traces
+  awsxray:
+    region: us-east-2
 
   otlphttp/metrics:
     endpoint: https://monitoring.${env:AWS_REGION}.amazonaws.com
@@ -68,7 +62,6 @@ exporters:
 service:
   extensions:
     - health_check
-    - sigv4auth/traces
     - sigv4auth/metrics
     - sigv4auth/logs
 
@@ -76,7 +69,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, resource, batch]
-      exporters: [otlphttp/traces]
+      exporters: [awsxray]
 
     metrics:
       receivers: [otlp]

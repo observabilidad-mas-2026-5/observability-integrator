@@ -1,0 +1,21 @@
+{
+  "scope": "Local checks after historical documentation cleanup and preparation of per-service image tags",
+  "aws_calls_made": false,
+  "aws_images_published": false,
+  "aws_chaos_executed": false,
+  "python_tests": {"passed": 35, "failed": 0, "warnings": 2, "duration_seconds": 9.35, "network": "disabled"},
+  "terraform_fmt": "passed",
+  "terraform_validate": "passed",
+  "terraform_mock_tests": {
+    "passed": 4,
+    "failed": 0,
+    "command": "plan only, mocked AWS provider",
+    "checks": [
+      "Default effective container definitions equal existing definitions",
+      "Only A/B change application tag and receive optional chaos environment variables",
+      "data-service and Collectors remain unchanged; services active and RDS private",
+      "Disarming preserves API tag; mutable latest tag rejected"
+    ]
+  },
+  "limitation": "No live Terraform plan or ECR scan performed. Actual resource drift, image publication, expiry and ECS startup still require an approved AWS review."
+}

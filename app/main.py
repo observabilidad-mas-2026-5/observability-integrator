@@ -51,6 +51,9 @@ except Exception:
 
 app = FastAPI(title="DevOps Bank Credit Application API")
 
+from .chaos import ExperimentContextMiddleware
+app.add_middleware(ExperimentContextMiddleware)
+
 from .telemetry import configure
 configure(app)
 

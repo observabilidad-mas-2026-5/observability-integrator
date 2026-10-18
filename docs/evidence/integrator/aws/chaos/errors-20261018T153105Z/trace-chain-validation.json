@@ -1,0 +1,28 @@
+{
+  "source": "xray-traces.json",
+  "sampled_traces_checked": 12,
+  "same_trace_id": 12,
+  "service_b_descendant_of_a": 12,
+  "data_service_descendant_of_b": 12,
+  "postgresql_descendant_of_data_service": 12,
+  "fault_and_successful_retry_same_trace": 3,
+  "fault_samples": [
+    "1-6ad4e896-9fc9f95b50ed9f75e2200001",
+    "1-6ad4e8f0-db57ab0930f311d9e22000e2",
+    "1-6ad4e946-4cc9f46592fe6083e22001ba"
+  ],
+  "fault_sample_data_service_statuses": [503, 200],
+  "correlated_log_counts": {
+    "data-service:chaos.error.injected": 50,
+    "service-b:credit.data.success": 50,
+    "service-a:credit.remote.success": 50
+  },
+  "cloudwatch_memory_metric_services": ["service-a", "service-b", "data-service"],
+  "error_counter_end_injection": 50,
+  "error_counter_end_recovery": 50,
+  "fault_started_utc": "2026-10-18T15:41:10.493000+00:00",
+  "verification_observed_utc": "2026-10-18T15:41:42.680817+00:00",
+  "operational_observation_delay_seconds": 32.187817,
+  "alert_mttd_seconds": null,
+  "limitation": "Parent-child relationships checked in 12 selected traces, not an exhaustive assertion for all requests. Operational polling is not alerting MTTD."
+}

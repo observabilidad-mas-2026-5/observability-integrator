@@ -1,0 +1,63 @@
+{
+  "event": "chaos.summary",
+  "environment": "aws",
+  "experiment": "service-b-latency-200ms-v1",
+  "requested_delay_ms": 200,
+  "configured_rps": 3.0,
+  "phase_seconds": 180.0,
+  "load_model": "single sequential client, best-effort pacing; actual throughput may be lower",
+  "percentile_method": "nearest rank; descriptive sample p99, not a population SLO proof",
+  "slo": {
+    "target": 0.995,
+    "latency_threshold_ms": 1000,
+    "scope": "experiment requests only; not the monthly remaining budget"
+  },
+  "phases": {
+    "baseline": {
+      "started_utc": "2026-10-18T14:24:26.311621+00:00",
+      "ended_utc": "2026-10-18T14:27:26.311936+00:00",
+      "requests": 540,
+      "errors": 0,
+      "error_rate": 0.0,
+      "p50_ms": 18.36542199998803,
+      "p95_ms": 42.86511699996254,
+      "p99_ms": 72.00367600000845,
+      "slo_bad_requests": 0,
+      "allowed_bad_requests": 2.7000000000000024,
+      "window_budget_consumption_percent": 0.0,
+      "burn_rate": 0.0
+    },
+    "injection": {
+      "started_utc": "2026-10-18T14:27:26.312505+00:00",
+      "ended_utc": "2026-10-18T14:30:26.312654+00:00",
+      "requests": 540,
+      "errors": 0,
+      "error_rate": 0.0,
+      "p50_ms": 219.78647799994633,
+      "p95_ms": 249.70596800000067,
+      "p99_ms": 276.5824690000045,
+      "slo_bad_requests": 0,
+      "allowed_bad_requests": 2.7000000000000024,
+      "window_budget_consumption_percent": 0.0,
+      "burn_rate": 0.0
+    },
+    "recovery": {
+      "started_utc": "2026-10-18T14:30:26.313214+00:00",
+      "ended_utc": "2026-10-18T14:33:26.313327+00:00",
+      "requests": 540,
+      "errors": 0,
+      "error_rate": 0.0,
+      "p50_ms": 18.85997599993061,
+      "p95_ms": 46.54675599999791,
+      "p99_ms": 84.18183499998122,
+      "slo_bad_requests": 0,
+      "allowed_bad_requests": 2.7000000000000024,
+      "window_budget_consumption_percent": 0.0,
+      "burn_rate": 0.0
+    }
+  },
+  "mttd_seconds": null,
+  "mttd_status": "not measured: requires Camilo's real alert timestamp and confirmed injection start",
+  "injection_status": "requested only: confirm chaos.latency spans, logs and counter before claiming injection",
+  "synthetic_application_id": "c32d2d6c-b73b-4a32-ab55-bbb23da6c616"
+}
