@@ -1,5 +1,7 @@
 # observability-integrator
 
+Consultamos nuestro [informe ejecutivo final (PDF, 10 páginas)](docs/INFORME_FINAL_INTEGRADOR.pdf), con los resultados, las evidencias y las limitaciones del laboratorio.
+
 Construimos nuestro laboratorio sobre `observability-end-to-end_v2` para entender qué ocurre con una solicitud. A eso llamamos **observabilidad**.
 
 Implementamos Service A → Service B → data-service → PostgreSQL. Lo validamos localmente y en AWS Ohio, con tres servicios ECS y RDS privado. ECS ejecuta contenedores; RDS administra la base de datos. Conservamos las [evidencias AWS](docs/evidence/integrator/aws/README.md).
