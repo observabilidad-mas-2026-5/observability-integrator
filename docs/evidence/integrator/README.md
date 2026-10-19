@@ -1,6 +1,8 @@
 # Validación local del Módulo A
 
-Validamos Service A → Service B → data-service → PostgreSQL en Docker Compose local. Esta carpeta documenta la etapa local inicial: durante esa ejecución no ejecutamos Terraform ni desplegamos recursos AWS. Presentamos la etapa posterior en las [evidencias AWS](aws/README.md) y los [experimentos de caos](aws/chaos/README.md), sin mezclar sus fechas ni conteos de pruebas.
+Necesitábamos comprobar que el tercer servicio no rompiera la API de créditos. En esta etapa validamos Service A → Service B → data-service → PostgreSQL en Docker Compose local.
+
+Obtuvimos los resultados listados abajo: pruebas, operaciones de crédito y señales de los tres servicios. No ejecutamos Terraform ni desplegamos AWS durante esta etapa. Los resultados posteriores están en [AWS](aws/README.md) y [caos](aws/chaos/README.md), con sus propios conteos y fechas.
 
 - [pytest.txt](pytest.txt): 16 pruebas aprobadas, incluidas las 10 existentes y nuevas pruebas de delegación B → data-service y filtrado de spans SQL. Dos advertencias de obsolescencia de Starlette/AnyIO.
 - [validation.json](validation.json): 22 comprobaciones aprobadas de CRUD, 404, 422, persistencia tras reiniciar data-service, relaciones entre spans, métricas y logs de los tres servicios.
@@ -13,4 +15,6 @@ Validamos Service A → Service B → data-service → PostgreSQL en Docker Comp
 
 Incidencia de ejecución: PowerShell interpretó inicialmente un mensaje informativo de Docker en stderr como error y detuvo el comando que capturaba pytest. La repetición completó las 16 pruebas; no hubo fallos de pruebas en la ejecución completada.
 
-En esta etapa no ejecutamos el benchmark largo, capturas del navegador ni el bundle auxiliar de imágenes cloud. La conectividad RDS, TLS contra RDS y Secrets Manager quedaron pendientes en ese momento; documentamos después la conexión real y la configuración desplegada en la [etapa AWS](aws/README.md). No afirmamos haber validado el rechazo de una CA incorrecta ni la rotación de credenciales. Conservamos intactas las evidencias anteriores.
+En esta etapa no ejecutamos el benchmark largo, capturas del navegador ni el bundle de imágenes cloud. RDS, su TLS y Secrets Manager quedaron pendientes entonces; la [etapa AWS](aws/README.md) documenta la conexión posterior.
+
+Siguen sin demostrarse el rechazo de una CA incorrecta y la rotación de credenciales. Conservamos las evidencias anteriores sin cambios.

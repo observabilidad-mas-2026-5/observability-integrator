@@ -1,8 +1,12 @@
 # Experimento AWS real: 200 ms en Service B
 
-Realizamos la ejecución `chaos-20261018T141822Z` el 18 de octubre de 2026, región `us-east-2`, perfil personal `observability-integrator`. Reutilizamos las imágenes desplegadas; no reconstruimos ni publicamos imágenes. Registramos todos los tiempos siguientes en UTC.
+Necesitábamos medir el efecto de añadir 200 ms a B. Realizamos `chaos-20261018T141822Z` el 18 de octubre de 2026, región `us-east-2`, perfil `observability-integrator`.
+
+Reutilizamos las imágenes: no reconstruimos ni publicamos ninguna. Observamos más latencia, sin errores finales, y recuperamos el comportamiento normal. Todos los tiempos siguientes son UTC. No medimos MTTD de alertamiento.
 
 ## Resultado medido
+
+p50, p95 y p99 son los tiempos que no supera el 50 %, 95 % y 99 % de las solicitudes de cada fase. Usamos milisegundos (ms). Las muestras enlazadas conservan los datos originales.
 
 Realizamos un POST sintético que devolvió **HTTP 201**; después ejecutamos **1620 GET**, limitados al identificador recién creado, sin errores. No utilizamos datos personales. Conservamos el registro sintético en RDS y no modificamos su infraestructura.
 
@@ -26,11 +30,15 @@ La inyección elevó el p50 en **201,42 ms** y el p99 en **204,58 ms** respecto 
 
 ## SLO y detección
 
-SLO de trabajo: **99,5 % de GET exitosos y ≤1000 ms**, en la ventana de este experimento. Hubo **0 solicitudes malas de 1620**: éxito observado 100 %, presupuesto permitido `1620 × 0,005 = 8,1` solicitudes, consumo **0 %**, burn rate **0**. Cada fase tuvo presupuesto permitido 2,7 y consumo cero. No extrapolamos este resultado al presupuesto restante mensual. La demora fue real, pero no violó el umbral de 1 s ni produjo errores; esto no demuestra un fallo de las alertas.
+SLO de trabajo: **99,5 % de GET exitosos y ≤1000 ms**, en la ventana de este experimento. Hubo **0 solicitudes malas de 1620**: éxito observado 100 %, presupuesto permitido `1620 × 0,005 = 8,1` solicitudes, consumo **0 %**, burn rate **0**. Cada fase tuvo presupuesto permitido 2,7 y consumo cero. No extrapolamos este resultado al presupuesto restante mensual.
 
-Interpretamos estos resultados con el [criterio AIOps conjunto](../../../../../../infra/aws/metrics-queries.md#condición-conjunta-de-aiops): errores por encima de la línea base + 2σ **Y** p99 superior al umbral del SLO, medidos en el mismo servicio y periodo. La latencia adicional, por sí sola, no satisface esa condición; no presentamos esta prueba como demostración de una alerta.
+La demora fue real, pero no violó el umbral de 1 s ni produjo errores; esto no demuestra un fallo de las alertas.
 
-Inicio real del fallo, según el primer log de B: **14:27:26.317000 UTC**. Primera verificación automática del controlador: **14:27:55.898983 UTC** (29,58 s después), registrada en [run.json](run.json). Esta demora corresponde al sondeo y consulta de logs, **no es MTTD de alertamiento**. La [observación de alarmas](alert-observation.json) no encontró alarmas métricas cuya configuración contuviera el nombre del integrador; no verificamos ninguna notificación correlacionada. **MTTD de alertamiento: no medido (`null`)**. No inferimos que no existan otras alarmas en la cuenta ni modificamos el trabajo del equipo de AIOps y seguridad.
+La demora sola no prueba una alerta. Aplicamos el [criterio conjunto](../../../../../../infra/aws/metrics-queries.md#condición-conjunta-de-aiops): errores > línea base + 2σ **Y** p99 > SLO, en el mismo servicio y periodo.
+
+Inicio real del fallo, según el primer log de B: **14:27:26.317000 UTC**. Primera verificación automática del controlador: **14:27:55.898983 UTC** (29,58 s después), registrada en [run.json](run.json). Esta demora corresponde al sondeo y consulta de logs, **no es MTTD de alertamiento**.
+
+La [observación de alarmas](alert-observation.json) no encontró alarmas métricas cuya configuración contuviera el nombre del integrador; no verificamos ninguna notificación correlacionada. **MTTD de alertamiento: no medido (`null`)**. No inferimos que no existan otras alarmas en la cuenta ni modificamos el trabajo del equipo de AIOps y seguridad.
 
 ## Recuperación y limpieza verificadas
 

@@ -1,8 +1,14 @@
 # Experimento 2: 10 % de errores en data-service
 
-Realizamos esta ejecución en nuestra cuenta personal del laboratorio, `us-east-2`, el 18 de octubre de 2026. Utilizamos un cliente Fargate temporal por IP privada de A, sin entrada HTTP pública, a 2,5 RPS y con fases de 180 s. Consultamos únicamente por GET un registro sintético existente: **cero escrituras**. Documentamos el [procedimiento reproducible](../../../../../CHAOS_EXPERIMENT_2.md).
+Necesitábamos inyectar 10 % de errores internos y retirar el fallo sin alterar datos.
+
+El 18 de octubre de 2026 ejecutamos la prueba en nuestra cuenta personal, `us-east-2`. Usamos una tarea Fargate temporal por IP privada de A, sin entrada HTTP pública: 2,5 RPS —solicitudes por segundo— y fases de 180 s. Solo consultamos un registro sintético por GET: **cero escrituras**.
+
+Medimos 50/500 errores internos. Service Connect los recuperó y las respuestas finales fueron 200. Después retiramos el caos y los recursos temporales. No medimos MTTD de alertamiento. El [procedimiento reproducible](../../../../../CHAOS_EXPERIMENT_2.md) conserva los pasos completos.
 
 ## Resultados medidos
+
+p50, p95 y p99 son los tiempos que no supera el 50 %, 95 % y 99 % de las solicitudes de cada fase. Usamos milisegundos (ms). Las muestras enlazadas conservan los datos originales.
 
 Calculamos los percentiles end-to-end del cliente mediante nearest-rank, en milisegundos. Conservamos las [muestras](samples.jsonl), el [resumen](summary.json) y los [tiempos de fases](phase-events.json).
 
@@ -12,7 +18,9 @@ Calculamos los percentiles end-to-end del cliente mediante nearest-rank, en mili
 | Inyección 15:41:10–15:44:10 | 450 | 450 × 200 | 0 % | 18,42 | 47,79 | 81,39 |
 | Recuperación 15:44:10–15:47:10 | 450 | 450 × 200 | 0 % | 18,06 | 33,89 | 69,39 |
 
-**El objetivo del 10 % se mide en data-service, no en la respuesta final:** durante la inyección hubo **500 intentos físicos elegibles, 50 errores 503 y 450 éxitos: 10,00 %**. Service Connect recuperó los 50 errores mediante reintentos; 50 operaciones lógicas sufrieron un fallo interno y terminaron en 200. No afirmamos que el cliente recibió un 10 % de errores. Los intentos internos adicionales no son solicitudes nuevas del generador. No modificamos proxies ni recursos de AIOps para desactivar esas protecciones.
+Durante la inyección contamos **500 intentos elegibles: 50 errores 503 y 450 éxitos, 10,00 % de fallos internos**. Service Connect reintentó las 50 operaciones afectadas; todas terminaron en 200.
+
+Por eso distinguimos intentos internos y respuestas finales: el cliente no recibió un 10 % de errores. Tampoco contamos los reintentos como solicitudes nuevas del generador. No cambiamos proxies ni AIOps para desactivar esa protección.
 
 ## Trazas, logs y métricas
 
@@ -28,7 +36,7 @@ SLO de trabajo end-to-end: **99,5 % de GET finales exitosos y ≤1000 ms**. Las 
 
 SLO de trabajo separado para el servidor durante la inyección: **99,5 % de intentos físicos elegibles sin fallo inyectado**. Con 50/500 fallidos, presupuesto permitido 2,5, consumo de ventana **2000 %**, burn rate **20×**. No mezclamos ese denominador con las 450 operaciones lógicas del cliente. [Cálculo y alcance](server-error-slo.json).
 
-Conservamos el criterio AIOps de tasa de errores superior a la línea base + 2σ **Y** p99 superior al umbral del SLO, para el mismo servicio y periodo. No mezclamos el 10 % interno con el p99 del cliente para declarar una detección. Los percentiles finales quedaron bajo 1000 ms; no demostramos la condición conjunta ni la entrega de una alerta por servicio.
+No mezclamos el 10 % interno de data-service con el p99 del cliente. La regla exige errores > línea base + 2σ **Y** p99 > SLO, del mismo servicio y periodo. Los percentiles finales quedaron bajo 1000 ms; no demostramos la alerta.
 
 Observamos el primer fallo real a las **15:41:10,493 UTC** y lo comprobamos operativamente en logs a las **15:41:42,681 UTC**, con una demora de 32,188 s. Mantenemos el **MTTD de alertamiento como no medido**: [no verificamos una alerta real correlacionada](alerts.json). El sondeo del controlador no es una notificación del sistema AIOps.
 
@@ -40,7 +48,9 @@ El [plan de activación](activation-plan-summary.json) solo creó cinco recursos
 
 La política de despliegue actual interrumpe brevemente data-service al renovar su tarea. El healthcheck dependiente de B puede provocar su reemplazo automático por ECS; ocurrió antes de medir y esperamos a los tres servicios HEALTHY. No es un cambio Terraform de B ni un efecto de la inyección sobre healthchecks. Documentamos esta limitación para mejorar liveness/readiness por separado.
 
-La [limpieza terminó a las 15:56:18 UTC](cleanup.json): gate retirado (`data_error_expires_at=0`), cliente detenido, cinco recursos temporales eliminados, definición temporal enviada a eliminación y stream temporal retirado después de guardar las evidencias. El plan final devolvió **No changes**. Los [tres servicios quedaron HEALTHY](final-services.json), A/B con `chaos-latency-v1`, data-service con `chaos-errors-v2` y los tres Collectors con `traces-v2`, [sin errores de exportación detectados](final-collector-errors.json). La [consulta AWS final](final-aws-verification.json) confirma tres tareas activas, ninguna definición temporal activa y ninguna regla de entrada en Service A. Conservamos RDS y sus datos; no ejecutamos un destroy general.
+La [limpieza terminó a las 15:56:18 UTC](cleanup.json): gate retirado (`data_error_expires_at=0`), cliente detenido, cinco recursos temporales eliminados, definición temporal enviada a eliminación y stream temporal retirado después de guardar las evidencias. El plan final devolvió **No changes**. Los [tres servicios quedaron HEALTHY](final-services.json), A/B con `chaos-latency-v1`, data-service con `chaos-errors-v2` y los tres Collectors con `traces-v2`, [sin errores de exportación detectados](final-collector-errors.json).
+
+La [consulta AWS final](final-aws-verification.json) confirma tres tareas activas, ninguna definición temporal activa y ninguna regla de entrada en Service A. Conservamos RDS y sus datos; no ejecutamos un destroy general.
 
 ## Intento anterior conservado
 
