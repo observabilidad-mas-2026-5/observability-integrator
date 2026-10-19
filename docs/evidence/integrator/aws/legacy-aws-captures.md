@@ -1,6 +1,10 @@
 # Capturas históricas AWS — laboratorio anterior
 
-Conservamos los siete enlaces de la documentación inicial que retiramos por estar desactualizada. Corresponden a `otel-credit-lab`, seis repositorios y retención de siete días; **no los presentamos como evidencia del integrador** `observability-integrator`. Para nuestra arquitectura actual de tres servicios consultamos las [evidencias AWS](README.md) y la [guía operativa](../../../../infra/aws/README.md). Mantenemos las capturas remotas sin descargarlas, modificarlas ni eliminarlas.
+Retiramos la documentación inicial porque describía otra arquitectura. Conservamos estos siete enlaces para no perder sus referencias.
+
+Las capturas corresponden a `otel-credit-lab`, seis repositorios y retención de siete días. **No prueban el funcionamiento de** `observability-integrator`. Para el estado de nuestros tres servicios usamos las [evidencias AWS](README.md) y la [guía operativa](../../../../infra/aws/README.md).
+
+No descargamos, modificamos ni eliminamos las capturas remotas.
 
 1. [Repositorios ECR](https://github.com/user-attachments/assets/fd4a877f-4583-49e1-a6b9-c67a74f40cb7).
 2. [Publicación API](https://github.com/user-attachments/assets/2dc46895-973a-4d4c-ae60-d8327bddfd13).

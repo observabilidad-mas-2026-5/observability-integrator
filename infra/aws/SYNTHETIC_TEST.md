@@ -1,10 +1,16 @@
 # Solicitud sintética privada, temporal y única
 
-Preparamos una solicitud privada con la cuenta personal `467866783326`, región `us-east-2`, sin lanzar tareas automáticamente. Utilizamos el procedimiento de credenciales temporales del [README](README.md), sin modificar perfiles laborales ni imprimir credenciales. Documentamos la ejecución del 18 de octubre y su retirada en las [evidencias reales](../../docs/evidence/integrator/aws/README.md). Cada nueva ejecución requiere revisar el plan y su alcance antes de aplicar cambios.
+Necesitábamos enviar una solicitud a A sin abrir acceso público. Preparamos una tarea Fargate temporal: un contenedor que se ejecuta dentro de la red del laboratorio y termina al completar la prueba.
+
+Usamos la cuenta personal `467866783326`, región `us-east-2`, y las credenciales temporales del [README](README.md). No cambiamos perfiles laborales ni mostramos credenciales. Crear la preparación no lanza tareas automáticamente.
+
+La ejecución del 18 de octubre obtuvo 201 al crear y 200 al consultar; después retiramos los recursos. Conservamos las [evidencias reales](../../docs/evidence/integrator/aws/README.md). Cada repetición necesita un plan revisado antes de aplicar cambios.
 
 ## Preparación y revisión
 
-Conservamos los comandos siguientes como referencia de la validación inicial con API `initial`. Tras los experimentos utilizamos el mapa completo de imágenes de la [guía AWS](README.md#pausar-y-reanudar-únicamente-los-microservicios), sin cambiar A/B `chaos-latency-v1`, data-service `chaos-errors-v2` ni Collector `traces-v2`, y con ambas inyecciones desactivadas. Los bloques históricos no incluyen ese mapa: no los ejecutamos directamente sobre el estado actual ni interpretamos sus resultados esperados como un plan nuevo. Antes de preparar o retirar la tarea necesitamos incorporar los overrides vigentes en un plan revisado.
+Los comandos siguientes son de la prueba inicial, con API `initial`. Para el estado posterior al caos usamos el mapa completo de la [guía AWS](README.md#pausar-y-reanudar-únicamente-los-microservicios): A/B `chaos-latency-v1`, data-service `chaos-errors-v2`, Collector `traces-v2` y caos desactivado.
+
+Los bloques no incluyen ese mapa. Antes de preparar o retirar la tarea lo incorporamos al plan y revisamos el resultado. No los ejecutamos directamente ni usamos sus totales históricos como un plan nuevo.
 
 ```bash
 terraform -chdir=infra/aws fmt
@@ -14,9 +20,15 @@ terraform -chdir=infra/aws plan -input=false \
   -var=enable_synthetic_test=true -out=.terraform/synthetic-test-review.tfplan
 ```
 
-Resultado esperado: **5 to add, 0 to change, 0 to destroy**: un Security Group sin entrada, dos reglas de salida (8000 hacia A y 443), una entrada en A exclusivamente desde el grupo temporal y una definición de tarea. Sin cambios en servicios, definiciones de tarea actuales, RDS ni IAM. Si aparece cualquier diferencia adicional, detenerse. Aplicar solamente tras aprobación independiente y revisión del plan vigente.
+Resultado esperado: **5 to add, 0 to change, 0 to destroy**: un Security Group sin entrada, dos reglas de salida (8000 hacia A y 443), una entrada en A exclusivamente desde el grupo temporal y una definición de tarea. Sin cambios en servicios, definiciones de tarea actuales, RDS ni IAM. Si aparece cualquier diferencia adicional, detenerse.
 
-La salida 443 a `0.0.0.0/0` está limitada por puerto, no por destino: permite ECR, descarga de capas desde S3 y CloudWatch Logs, pero también otros destinos HTTPS. Los Security Groups no filtran por nombre DNS; restringir a endpoints privados requeriría infraestructura adicional facturable. No se crea NAT, balanceador, servicio ECS ni rol IAM. Se reutiliza el rol de ejecución de A (pull ECR y logs); no se asigna rol de tarea, secreto, credencial RDS ni permiso administrativo al contenedor.
+Aplicar solamente tras aprobación independiente y revisión del plan vigente.
+
+Permitimos salida 443 a `0.0.0.0/0`. La restricción es por puerto, no por destino: permite ECR, capas de imágenes desde S3 y CloudWatch Logs, pero también otros sitios HTTPS.
+
+Los Security Groups —reglas de tráfico de red— no filtran por nombre DNS. Limitar la salida a endpoints privados requiere recursos adicionales facturables. No creamos NAT, balanceador, servicio ECS ni rol IAM.
+
+Reutilizamos el rol de ejecución de A para descargar imágenes y enviar logs. El contenedor no recibe rol de tarea, secreto, credenciales RDS ni permisos administrativos.
 
 ## Ejecución única posterior a la aprobación
 
@@ -51,7 +63,9 @@ aws logs get-log-events --profile "$PROFILE" --region "$REGION" \
   --log-group-name /ecs/observability-integrator --log-stream-name "$STREAM"
 ```
 
-La tarea usa 0,25 vCPU/512 MiB, IPv4 pública solo para salida y ninguna entrada. Hay cargos breves Fargate (mínimo facturable Linux de un minuto), IPv4 y logs. No hay reinicio automático por un servicio ECS. El cliente realiza un único POST, sin reintentos ni redirecciones; registra `traceparent`, `trace_id`, `xray_trace_id`, hora UTC, código HTTP y `application_id`. Exigir salida 0 y HTTP 201/PENDING. Si falla o expira, no reintentar automáticamente: el registro podría haberse persistido antes del fallo de respuesta. La tarea deja un registro sintético en RDS; no existe endpoint DELETE y esta preparación no borra datos.
+La tarea usa 0,25 vCPU/512 MiB, IPv4 pública solo para salida y ninguna entrada. Hay cargos breves Fargate (mínimo facturable Linux de un minuto), IPv4 y logs. No hay reinicio automático por un servicio ECS. El cliente realiza un único POST, sin reintentos ni redirecciones; registra `traceparent`, `trace_id`, `xray_trace_id`, hora UTC, código HTTP y `application_id`.
+
+Exigir salida 0 y HTTP 201/PENDING. Si falla o expira, no reintentar automáticamente: el registro podría haberse persistido antes del fallo de respuesta. La tarea deja un registro sintético en RDS; no existe endpoint DELETE y esta preparación no borra datos.
 
 El operador necesita `ecs:RegisterTaskDefinition`, `ecs:RunTask`, `ecs:DescribeTasks`, `ecs:ListTasks`, `ecs:StopTask`, `ecs:DeregisterTaskDefinition`, `ecs:DeleteTaskDefinitions`, lectura de logs y `iam:PassRole` limitado al rol de ejecución de A. Terraform necesita administrar el grupo y las tres reglas temporales. No se otorgan estos permisos al contenedor.
 
@@ -67,7 +81,9 @@ aws logs filter-log-events --profile "$PROFILE" --region "$REGION" \
   --log-group-name /ecs/observability-integrator/otel --filter-pattern "\"$TRACE_ID\""
 ```
 
-Definimos previamente `XRAY_TRACE_ID` con formato `1-xxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx` y `TRACE_ID` con sus 32 dígitos hexadecimales, ambos tomados del cliente. En X-Ray, inspeccionar segmentos y subsegmentos recursivamente: mismo `trace_id`, atribución `otel.resource.service.name` a A/B/data-service, relaciones `parent_id`/`id` y span PostgreSQL con `db.system.name=postgresql` y `db.operation.name=INSERT`. El padre externo del span servidor de A corresponde al ID enviado en `traceparent`; el cliente no exporta un span propio. No confundir nombres de segmentos con identidad del servicio.
+Definimos previamente `XRAY_TRACE_ID` con formato `1-xxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx` y `TRACE_ID` con sus 32 dígitos hexadecimales, ambos tomados del cliente. En X-Ray, inspeccionar segmentos y subsegmentos recursivamente: mismo `trace_id`, atribución `otel.resource.service.name` a A/B/data-service, relaciones `parent_id`/`id` y span PostgreSQL con `db.system.name=postgresql` y `db.operation.name=INSERT`. El padre externo del span servidor de A corresponde al ID enviado en `traceparent`; el cliente no exporta un span propio.
+
+No confundir nombres de segmentos con identidad del servicio.
 
 Buscamos `credit.remote.success` (A), `credit.data.success` (B), `credit.persisted` (data-service), todos con el mismo trace ID y span IDs correspondientes. Verificar también métricas recientes de los tres servicios en CloudWatch OTel y HTTP en los destinos donde estén configuradas; no asumir que las métricas Prometheus locales aparecen automáticamente en OTLP. Guardar evidencia sanitizada en `docs/evidence/integrator/`, sin estados, planes binarios ni credenciales.
 
@@ -85,4 +101,6 @@ terraform -chdir=infra/aws plan -input=false \
 
 Resultado esperado tras haber creado los recursos: **0 to add, 0 to change, 5 to destroy**. Revisar y aplicar únicamente tras aprobación separada; no utilizar `terraform destroy` global ni `-target`. Se eliminan el grupo y sus reglas, incluida la entrada temporal en A, y se desregistra la definición de tarea. Las tres aplicaciones siguen activas con sus imágenes actuales.
 
-Terraform desregistra la revisión de tarea; si se requiere eliminar además la revisión INACTIVE, usar después `aws ecs delete-task-definitions --profile "$PROFILE" --region "$REGION" --task-definitions "$DEFINITION"`, solo cuando no tenga tareas en ejecución. Después de guardar las evidencias, eliminar exclusivamente el stream temporal con `aws logs delete-log-stream --profile "$PROFILE" --region "$REGION" --log-group-name /ecs/observability-integrator --log-stream-name "$STREAM"`. No eliminar grupos compartidos ni los streams de aplicaciones. ECS puede conservar temporalmente historial de tareas detenidas; no son tareas activas ni cargos de cómputo. No borrar el registro sintético de RDS sin aprobación independiente.
+Terraform desregistra la revisión de tarea; si se requiere eliminar además la revisión INACTIVE, usar después `aws ecs delete-task-definitions --profile "$PROFILE" --region "$REGION" --task-definitions "$DEFINITION"`, solo cuando no tenga tareas en ejecución. Después de guardar las evidencias, eliminar exclusivamente el stream temporal con `aws logs delete-log-stream --profile "$PROFILE" --region "$REGION" --log-group-name /ecs/observability-integrator --log-stream-name "$STREAM"`. No eliminar grupos compartidos ni los streams de aplicaciones.
+
+ECS puede conservar temporalmente historial de tareas detenidas; no son tareas activas ni cargos de cómputo. No borrar el registro sintético de RDS sin aprobación independiente.

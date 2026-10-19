@@ -1,10 +1,20 @@
 # Experimento 1: +200 ms en Service B
 
-Ejecutamos y limpiamos este experimento en AWS el **18 de octubre de 2026**. Documentamos las métricas, trazas y limpieza en el [informe real](evidence/integrator/aws/chaos/chaos-20261018T141822Z/README.md). Conservamos las imágenes ya desplegadas, RDS y los tres servicios. Presentamos por separado las validaciones locales anteriores.
+Necesitábamos comprobar cómo una demora en Service B afecta al recorrido completo. Añadimos 200 ms solo a las solicitudes de prueba y comparamos tres fases: normal, inyección y recuperación.
+
+Ejecutamos y limpiamos la prueba en AWS el **18 de octubre de 2026**. El [informe real](evidence/integrator/aws/chaos/chaos-20261018T141822Z/README.md) conserva las mediciones y la limpieza. Mantuvimos imágenes, RDS y los tres servicios. Las validaciones locales están separadas.
+
+Observamos más latencia, sin errores ni incumplimiento del SLO usado. No demostramos una alerta real ni MTTD de alertamiento. Debajo conservamos el procedimiento completo; el informe contiene el resultado medido.
+
+Las [evidencias posteriores de AIOps y seguridad](evidence/integrator/aws/README.md#evidencias-posteriores-de-aiops-y-seguridad) amplían el laboratorio, pero no cambian este resultado. Antes de repetir necesitamos validar la regla conjunta y su notificación, sin atribuir a esta ejecución alertas posteriores.
+
+Llamamos latencia al tiempo de respuesta. Nuestro SLO es el objetivo de servicio; MTTD sería el tiempo medio hasta detectar un fallo mediante una alerta, no el tiempo que tardamos en mirar los logs.
 
 ## Mecanismo mínimo y límites
 
-Implementamos la inyección de caos en `app/chaos.py`, que añade una espera fija de 200 ms dentro de `credit.data.request` de B, antes de llamar a data-service. Se ejecuta en el handler síncrono/threadpool, no bloquea el event loop y no requiere privilegios, netem, FIS, nuevas credenciales ni permisos IAM. No altera respuestas, validaciones ni timeouts HTTPX existentes. Los healthchecks y `/metrics` quedan fuera.
+Implementamos la espera de 200 ms en `app/chaos.py`, dentro de `credit.data.request` de B y antes de llamar a data-service. Se ejecuta en el handler síncrono/threadpool, sin bloquear el event loop: la aplicación puede seguir atendiendo otras operaciones.
+
+No requiere privilegios, netem, FIS, credenciales nuevas ni permisos IAM. Tampoco cambia respuestas, validaciones o timeouts HTTPX. Excluimos los healthchecks —sondas de salud— y `/metrics`.
 
 Exigimos simultáneamente:
 
@@ -12,13 +22,17 @@ Exigimos simultáneamente:
 - `CHAOS_EXPIRES_AT` como epoch UTC futuro, no más de 1800 segundos después del arranque del proceso. Si falta, es inválido, está vencido o excede ese límite, no se inyecta.
 - Header exacto `x-lab-chaos-experiment: service-b-latency-200ms-v1`. Cualquier otro valor se ignora.
 
-A transmite exclusivamente ese marcador validado a B mediante un ContextVar aislado por solicitud; B aplica la espera. No se transmite a data-service. El cliente solo marca la fase de inyección. No hay endpoint administrativo, estado remoto ni activación automática por importar el módulo. La variable de entorno se fija al desplegar, no cambia entre fases. La caducidad es defensa adicional; la recuperación se logra retirando el header, sin reinicios. Este marcador no es autenticación y solo se admite en el laboratorio privado con datos sintéticos.
+A pasa a B solo el marcador validado, mediante un ContextVar aislado por solicitud. B aplica la espera; no transmite el marcador a data-service. El cliente lo envía únicamente durante la fase de inyección.
+
+No creamos un endpoint administrativo ni estado remoto. Importar el módulo no activa el caos. Fijamos las variables al desplegar y recuperamos el comportamiento normal retirando el header, sin reinicios. La caducidad es una protección adicional. El marcador no autentica solicitudes: lo usamos solo en el laboratorio privado y con datos sintéticos.
 
 ## Tráfico y duración
 
 `scripts/chaos_latency.py` crea **un** crédito sintético (POST sin marcador y sin reintentos), después consulta únicamente ese identificador mediante GET durante tres fases. No lista registros de otros clientes ni registra cuerpos de respuestas. Cada solicitud genera un traceparent W3C muestreado nuevo.
 
-Configuramos 180 s normales + 180 s de inyección + 180 s de recuperación, con **3 solicitudes/s** como objetivo y un cliente secuencial. Aproximadamente 540 lecturas por fase, 1620 en total, más la creación. Generamos carga moderada y de mejor esfuerzo: registramos el throughput logrado y no lo presentamos como carga abierta constante; puede haber omisión coordinada si aumentan los tiempos. Configuramos timeout de 5 s, sin reintentos ni redirecciones del cliente. No asumimos un p99 estadísticamente representativo con este volumen.
+Configuramos 180 s normales + 180 s de inyección + 180 s de recuperación. El objetivo es **3 solicitudes/s**, unas 540 lecturas por fase y 1620 en total, más la creación inicial.
+
+El cliente es secuencial y espera entre solicitudes; registramos la tasa lograda, no una carga abierta constante. Si las respuestas se demoran, generará menos solicitudes: puede subestimar el efecto que tendría una carga independiente. Configuramos timeout de 5 s, sin reintentos ni redirecciones del cliente. El p99 de esta muestra es descriptivo, no una prueba estadística del servicio.
 
 Ejemplo para una aplicación local ya iniciada con las variables de A/B configuradas explícitamente:
 
@@ -41,7 +55,9 @@ Conservamos abajo el procedimiento de la primera ejecución, cuando data-service
 5. Reutilizamos `api:initial` como cliente Python: enviar el contenido del script como override de comando `python -c`, con los argumentos del ejemplo y `--environment aws --output-dir -`. Este modo emite muestras y resumen a stdout/CloudWatch y funciona con raíz de solo lectura. Si el JSON de overrides excede el límite de ECS (8192 caracteres), comprimir el código con zlib/base64 y usar un bootstrap estándar Python; no incluir secretos. Revisar el override antes de lanzar, no sustituir accidentalmente el comando por el POST único de la definición original.
 6. Recuperamos muestras JSONL y `chaos.summary` del stream temporal antes de retirarlo; consultar X-Ray y logs OTLP por los trace IDs de las muestras. Guardar evidencia sanitizada con fechas nuevas bajo `docs/evidence/integrator/aws/chaos/`. Una ejecución sin spans/logs de inyección se clasifica **no inyectada**, aunque el script termine sin errores.
 
-La ejecución real utilizó planes revisados limitados al armado/desarmado de A/B y cinco recursos temporales, con limpieza completa; los detalles están en la evidencia enlazada. Cada repetición requiere aprobación independiente. La tarea y sus IPv4 generan cargos; no se necesitan NAT, ALB ni acceso público. Ventana operativa: **20–30 minutos**, incluyendo despliegue, 9 minutos de tráfico, exportación asíncrona y limpieza; entrenamiento de AIOps queda fuera.
+La ejecución real utilizó planes revisados limitados al armado/desarmado de A/B y cinco recursos temporales, con limpieza completa; los detalles están en la evidencia enlazada. Cada repetición requiere aprobación independiente. La tarea y sus IPv4 generan cargos; no se necesitan NAT, ALB ni acceso público.
+
+Ventana operativa: **20–30 minutos**, incluyendo despliegue, 9 minutos de tráfico, exportación asíncrona y limpieza; entrenamiento de AIOps queda fuera.
 
 ## Medición, SLO y contrato compartido
 
@@ -56,16 +72,26 @@ Identificador fijo: **`service-b-latency-200ms-v1`**. Servicios: `service-a`, `s
 | Logs | `chaos.latency.started` y `chaos.latency.injected` en B con trace_id/span_id; conservar logs existentes |
 | Errores cliente | respuestas distintas de HTTP 200 o fallo de transporte / intentos GET; separado del porcentaje servidor 5xx |
 
-Para una validación de alertamiento por servicio necesitamos comparar p99 de A y B por separado, con ventanas de 60 s y las fases completas, excluyendo healthchecks. No damos esa comparación por realizada con los percentiles end-to-end del cliente. Tampoco sumamos percentiles ni confundimos el histograma nominal de demora con la latencia real. Las consultas propuestas están en [metrics-queries.md](../infra/aws/metrics-queries.md); su validación requiere confirmar nombres, unidades y tipos de histogramas en AWS. En este experimento no modificamos dashboards, alarmas ni recursos de seguridad/AIOps.
+Para una validación de alertamiento por servicio necesitamos comparar p99 de A y B por separado, con ventanas de 60 s y las fases completas, excluyendo healthchecks. No damos esa comparación por realizada con los percentiles end-to-end del cliente. Tampoco sumamos percentiles ni confundimos el histograma nominal de demora con la latencia real.
 
-SLO de trabajo configurable (no acuerdo productivo): **99,5 % de solicitudes GET exitosas y ≤1000 ms**. Solicitud mala = no 200 **o** duración >1000 ms, sin contar dos veces. Para N intentos: presupuesto permitido `N × (1−0,995)`; consumo de la ventana `malas / permitido × 100`; burn rate `fracción_mala / (1−0,995)`. No redondear el presupuesto hacia arriba ni declararlo presupuesto mensual restante. Para el mensual hacen falta volumen y errores de toda esa ventana. Un p99 por encima de 1 s es una condición de alarma, no una definición equivalente al SLI por solicitud.
+Las consultas propuestas están en [metrics-queries.md](../infra/aws/metrics-queries.md); su validación requiere confirmar nombres, unidades y tipos de histogramas en AWS. En este experimento no modificamos dashboards, alarmas ni recursos de seguridad/AIOps.
 
-**200 ms pueden elevar la latencia sin superar el umbral de 1 s ni aumentar los errores**: un consumo de presupuesto de cero es un resultado válido. Nuestro criterio AIOps exige una tasa de errores superior a la línea base + 2σ **Y** una latencia p99 superior al umbral del SLO, para el mismo servicio y periodo. En este experimento no demostramos la activación de esa condición conjunta ni una alerta real. No reducimos el SLO retroactivamente ni creamos fallos artificiales para obtener MTTD. Detallamos unidades, denominadores y limitaciones en el [criterio compartido](../infra/aws/metrics-queries.md#condición-conjunta-de-aiops).
+Usamos un SLO de trabajo, no productivo: **99,5 % de GET exitosos y ≤1000 ms**. Una solicitud mala es no 200 **o** >1000 ms, sin duplicarla. Para N intentos: presupuesto `N × (1−0,995)`, consumo `malas / permitido × 100` y burn rate `fracción_mala / (1−0,995)`.
 
-Calculamos el tiempo hasta detección de una ejecución como `timestamp de primera alerta real − inicio confirmado de inyección`, usando UTC del span `chaos.latency` o log `chaos.latency.started` y la marca de evaluación/notificación acordada. Si no observamos una alerta, registramos **no detectado/censurado hasta fin de ventana**, no cero. Para estimar MTTD como promedio necesitamos varias ejecuciones con un criterio de detección consistente. El generador deja `mttd_seconds=null`: no sustituye la medición de una notificación real por una inferencia a partir de p99.
+No redondeamos el presupuesto ni lo extrapolamos al mes: necesitamos el volumen y los fallos de toda esa ventana. Un p99 >1 s es una condición de alerta, no el SLI por solicitud.
+
+La alerta requiere errores > línea base + 2σ **Y** p99 > umbral del SLO, en el mismo servicio y periodo. No demostramos esa alerta ni bajamos el umbral. El [criterio compartido](../infra/aws/metrics-queries.md#condición-conjunta-de-aiops) explica unidades y denominadores.
+
+Tiempo hasta detección = `timestamp de primera alerta real − inicio confirmado de inyección`, con UTC de `chaos.latency` o `chaos.latency.started` y de la alerta. Sin alerta registramos **no detectado/censurado hasta fin de ventana**, no cero. MTTD requiere varias detecciones comparables. El generador deja `mttd_seconds=null`: p99 no prueba notificación.
+
+El generador deja `mttd_seconds=null`: no sustituye la medición de una notificación real por una inferencia a partir de p99.
 
 ## Recuperación y retirada
 
-La fase recovery deja de enviar el marcador: comprobar ausencia de nuevos spans/logs de inyección y contador sin incremento, errores de vuelta al baseline y p99 próximo al baseline (tolerancia inicial descriptiva `max(20 ms, 20 % del baseline)`; repetir bajo condiciones comparables antes de concluir). El script conserva las métricas por fase pero no declara recuperación por sí solo. Si la prueba termina antes, ninguna otra solicitud sin marcador recibe demora; la caducidad impide nuevas inyecciones después del límite, y no cancela una espera de 200 ms ya iniciada.
+La fase recovery deja de enviar el marcador: comprobar ausencia de nuevos spans/logs de inyección y contador sin incremento, errores de vuelta al baseline y p99 próximo al baseline (tolerancia inicial descriptiva `max(20 ms, 20 % del baseline)`; repetir bajo condiciones comparables antes de concluir). El script conserva las métricas por fase pero no declara recuperación por sí solo.
 
-Después de guardar evidencia, esperar que termine o detener exclusivamente la tarea generadora, retirar los cinco recursos temporales con el procedimiento Terraform revisado y conservar `deploy_services=true` y el Collector. Retirar `CHAOS_ENABLED`/ponerlo a false y caducidad 0 en A/B en una renovación posterior aprobada, o volver a las imágenes anteriores; revisar antes el plan exacto. No destruimos RDS, los servicios ni recursos del equipo de AIOps y seguridad. El único registro sintético permanece en PostgreSQL; no hay endpoint DELETE y su borrado requiere otra aprobación.
+Si la prueba termina antes, ninguna otra solicitud sin marcador recibe demora; la caducidad impide nuevas inyecciones después del límite, y no cancela una espera de 200 ms ya iniciada.
+
+Después de guardar evidencia, esperar que termine o detener exclusivamente la tarea generadora, retirar los cinco recursos temporales con el procedimiento Terraform revisado y conservar `deploy_services=true` y el Collector. Retirar `CHAOS_ENABLED`/ponerlo a false y caducidad 0 en A/B en una renovación posterior aprobada, o volver a las imágenes anteriores; revisar antes el plan exacto.
+
+No destruimos RDS, los servicios ni recursos del equipo de AIOps y seguridad. El único registro sintético permanece en PostgreSQL; no hay endpoint DELETE y su borrado requiere otra aprobación.

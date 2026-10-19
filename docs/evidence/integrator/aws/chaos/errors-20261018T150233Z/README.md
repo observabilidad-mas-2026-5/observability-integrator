@@ -1,6 +1,10 @@
 # Experimento 2: intento diagnóstico no válido como inyección del 10 %
 
-Conservamos esta ejecución como diagnóstico, pero **no la presentamos como validación del objetivo del experimento 2**. Recibimos 54 errores entre 540 solicitudes del cliente durante la fase de inyección (10 %), pero los reintentos de Service Connect amplificaron los fallos del mismo trace ID: data-service recibió 972 intentos elegibles y emitió 486 errores (50 %). En las tres trazas fallidas seleccionadas identificamos nueve spans `chaos.error` por traza. No confundimos el porcentaje del cliente con el del servidor.
+Necesitábamos inyectar un 10 % de errores en data-service. Este intento **no validó ese objetivo**: recibimos 54/540 errores finales (10 %), pero el servicio produjo 486/972 fallos internos (50 %).
+
+Los reintentos de Service Connect repitieron el mismo fallo. Las tres trazas seleccionadas contienen nueve spans `chaos.error` cada una; un span representa un paso de la solicitud. No confundimos errores finales con intentos internos.
+
+Detuvimos la declaración de éxito, limpiamos los recursos y corregimos el mecanismo antes de repetir. Conservamos abajo el diagnóstico original.
 
 - [Muestras y percentiles del cliente](summary.json), [trazas](xray-traces.json) y [logs correlacionados](correlated-failure-logs.json).
 - [Contador de intentos elegibles](eligible-counter-diagnostic.json) y [contador de errores](error-counter-after-recovery.json).
